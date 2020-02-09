@@ -3,17 +3,17 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
-<div class="outsideWrapper">
+<div class="outsideWrapper" id="outsideWrapper">
     <div class="insideWrapper">
         <img src="{{ url_for('static', filename='testimage.jpg') }}" class="coveredImage">
-        <canvas id='inputCanvas' class="coveringCanvas" width='256px' height='256px'></canvas>
+        <canvas id='inputCanvas' class="coveringCanvas" width={{ img.size[0] }} height={{ img.size[1] }}></canvas>
     </div>
 </div>
 
-
+<br>
 <div class="row text-center">
 	<button class="btn btn-primary" id="clearButton">Clear</button>
 	<button class="btn btn-primary" id="sendButton">Send data</button>
-	<input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="20" data-slider-step="1" data-slider-value="14"/>
+	<input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
 </div>
 {% endblock %}

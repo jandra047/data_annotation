@@ -4,15 +4,37 @@ $( document ).ready(function () {
 	var ctx = canvas.getContext('2d')
 	var clearBtn = document.getElementById('clearButton')
 	var sendBtn = document.getElementById('sendButton')
+	var rect = canvas.getBoundingClientRect();
+	var brushRadius = new Slider('#ex1', {
+	formatter: function(value) {
+		return 'Current value: ' + value;
+		}
+	});
 
-	function drawCircle(e) {
-		var x = e.pageX - canvas.offsetLeft;
-		var y = e.pageY - canvas.offsetTop;
+
+	function getMousePos(canvas, evt) {
+    	var rect = canvas.getBoundingClientRect();
+	    return {
+	        x: (evt.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+	        y: (evt.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+	    };
+	}
+
+	function drawCircle(e) {		
+		mouse_pos = getMousePos(canvas, e);
+		var x = mouse_pos['x']
+		var y = mouse_pos['y']
+		//var x = e.pageX - rect.left;
+		//var y = e.pageY - rect.top;
 		var radius = brushRadius.getValue();
+		//ctx.globalCompositeOperation = "source-out";
+		ctx.globalAlpha = 0.8
+		ctx.fillStyle = 'rgb(0,255,255)'
 		ctx.beginPath();
 		ctx.arc(x, y, radius, 0, 2*Math.PI);
 		ctx.fill()
 	}
+
 
 	function clearCanvas() {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -27,27 +49,23 @@ $( document ).ready(function () {
 		sender(data, url = '/receiver')		
 	}
 
-
 	canvas.onmousedown = function(e) {
 		canvas.isDrawing = true;
+		
 		drawCircle(e);
 	}
-	canvas.onmouseup = function(e) {
-		canvas.isDrawing = false;
+	window.onmouseup = function(e) {
+		ctx.canvas.isDrawing = false;
+		
 	}
 	canvas.onmousemove = function(e) {
 		if (!canvas.isDrawing) {
-			return;
+			return;		
+			
 		}
-		drawCircle(e);
+		drawCircle(e);		
+		
 	}
-
-	var brushRadius = new Slider('#ex1', {
-	formatter: function(value) {
-		return 'Current value: ' + value;
-		}
-	});
-
 
 	clearBtn.addEventListener('click', clearCanvas);
 	sendBtn.addEventListener('click', sendData)

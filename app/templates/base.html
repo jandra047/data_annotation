@@ -8,6 +8,8 @@
 		<title>{% block title %}{% endblock %}</title>
 	</head>
 	<body>
+		<a href="{{ url_for('user.login') }}">Login</a>
+		<a href="{{ url_for('user.logout') }}">Logout</a>
 		<div class="container">
 				<nav class="navbar navbar-default" role="navigation">
 					<div class="navbar-header">
