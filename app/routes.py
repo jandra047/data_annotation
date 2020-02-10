@@ -11,7 +11,7 @@ import os
 
 
 @app.route('/')
-@login_required
+
 def index():
 	title = 'DataAnnotation'
 	
