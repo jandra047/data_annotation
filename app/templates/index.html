@@ -5,7 +5,7 @@
 {% block content %}
 <div class="outsideWrapper" id="outsideWrapper">
     <div class="insideWrapper">
-        <img src="{{ url_for('static', filename='testimage.jpg') }}" class="coveredImage">
+        <img src="{{ url_for('images', filename='testimage.jpg') }}" class="coveredImage">
         <canvas id='inputCanvas' class="coveringCanvas" width={{ img.size[0] }} height={{ img.size[1] }}></canvas>
     </div>
 </div>

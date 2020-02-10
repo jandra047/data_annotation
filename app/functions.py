@@ -10,3 +10,8 @@ def save_mask(data, name):
 	mask = np.repeat(mask, 3, axis=-1)
 	plt.imsave(name + '.png', mask)
 	return 0
+
+
+
+
+

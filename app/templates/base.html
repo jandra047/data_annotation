@@ -8,8 +8,6 @@
 		<title>{% block title %}{% endblock %}</title>
 	</head>
 	<body>
-		<a href="{{ url_for('user.login') }}">Login</a>
-		<a href="{{ url_for('user.logout') }}">Logout</a>
 		<div class="container">
 				<nav class="navbar navbar-default" role="navigation">
 					<div class="navbar-header">
@@ -22,7 +20,7 @@
 					<div class="navbar-collapse collapse">
 						<ul class="nav navbar-nav navbar-left">
 							<li><a class='nav-item' href="/">Home</a></li>
-							<li><a class='nav-item' href="#">Results</a></li>
+							<li><a class='nav-item' href="/user/sign-out">Login</a></li>
 						</ul>
 					</div>
 				</nav>

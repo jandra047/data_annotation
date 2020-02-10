@@ -11,4 +11,5 @@ class Config(object):
 	USER_ENABLE_REGISTRATION = False
 	TESTING = False
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
-	USER_HOME_DIR = APP_ROOT + '/users/'
+	USERS_HOME_DIR = APP_ROOT + '/users/'
+	IMAGES_DIR = APP_ROOT + '/app/images/'
