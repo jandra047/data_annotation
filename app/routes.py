@@ -1,38 +1,73 @@
-from app import app
-from flask import render_template, request, redirect, url_for, send_from_directory
-from app.functions import save_mask
+from app import app, db
+from app.forms import LoginForm, RegistrationForm
+from flask import render_template, request, redirect, url_for, send_from_directory, flash
+from app.functions import save_mask, load_image, add_to_done
 from PIL import Image
-from flask_user import login_required
+from flask_login import login_user, logout_user, current_user, login_required
+from app.models import User
+from werkzeug.urls import url_parse
 import os
 
-
-
-
-
-
 @app.route('/')
-
+@login_required
 def index():
 	title = 'DataAnnotation'
-	
-	img = Image.open(app.config['IMAGES_DIR']+ 'testimage.jpg')
-	return render_template('index.html', title = title, img=img)
+	img_path, img_name = load_image(current_user)
+	img = Image.open(img_path)
+	return render_template('index.html', title = title, img=img, filename=img_name)
 
 
 @app.route('/receiver', methods=['GET', 'POST'])
-@login_required
 def receive():
 	mask = request.json['mask']
-	name = 'test'
-	save_mask(mask, name)
-	return ""
+	img_name = request.json['img_name']
+	save_mask(mask, current_user, img_name)
+	add_to_done(img_name, current_user)
+	return redirect(url_for('index'))
 
 @app.route('/images/<path:filename>')
 def images(filename):
-    return send_from_directory(app.config['IMAGES_DIR'], filename)
+	return send_from_directory(app.config['IMAGES_DIR'], filename)
 
 
+@app.route('/users/<path:username>')
+def user_dir(username):
+	return f'/users/{username}'
 
+@app.route('/login', methods = ['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash('Invalid username or password')
+            return redirect(url_for('login'))
+        login_user(user, remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        return redirect(next_page)
+        #return redirect(url_for('index'))
+    return render_template('login.html', title='Sign In', form=form)
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        os.mkdir(app.config['USERS_HOME_DIR'] + form.username.data)
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
 
-
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))

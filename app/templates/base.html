@@ -19,12 +19,27 @@
 					</div>
 					<div class="navbar-collapse collapse">
 						<ul class="nav navbar-nav navbar-left">
-							<li><a class='nav-item' href="/">Home</a></li>
-							<li><a class='nav-item' href="/user/sign-out">Login</a></li>
-						</ul>
+							<li><a class='nav-item' href="{{ url_for('index') }}">Home</a></li>
+							{% if current_user.is_anonymous %}
+        					<li><a href="{{ url_for('login') }}">Login</a></li>
+        					<li><a class='nav-item' href="{{ url_for('register') }}">Register</a></li>
+        					{% else %}
+        					<li><a href="{{ url_for('logout') }}">Logout</a></li>
+        					{% endif %}
+							</ul>
 					</div>
 				</nav>
 		</div>
+		  <hr>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
 		<div id="content" class="container main-container">
 			{% block content %}{% endblock %}
 		</div>

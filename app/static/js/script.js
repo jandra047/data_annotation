@@ -46,7 +46,8 @@ $( document ).ready(function () {
 		for (var i = 3; i <= image_data.length; i = i+4) {
 			data.push(image_data[i])
 		}
-		sender(data, url = '/receiver')		
+		img_name = document.getElementById('coveredImage').name
+		sender(data, url = '/receiver', img_name)		
 	}
 
 	canvas.onmousedown = function(e) {

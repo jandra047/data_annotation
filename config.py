@@ -12,4 +12,4 @@ class Config(object):
 	TESTING = False
 	SQLALCHEMY_TRACK_MODIFICATIONS = False
 	USERS_HOME_DIR = APP_ROOT + '/users/'
-	IMAGES_DIR = APP_ROOT + '/app/images/'
+	IMAGES_DIR = APP_ROOT + '/images/'

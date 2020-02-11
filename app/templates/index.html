@@ -5,7 +5,7 @@
 {% block content %}
 <div class="outsideWrapper" id="outsideWrapper">
     <div class="insideWrapper">
-        <img src="{{ url_for('images', filename='testimage.jpg') }}" class="coveredImage">
+        <img src="{{ url_for('images', filename=filename) }}" id="coveredImage" class="coveredImage" name={{ filename }}>
         <canvas id='inputCanvas' class="coveringCanvas" width={{ img.size[0] }} height={{ img.size[1] }}></canvas>
     </div>
 </div>
@@ -13,7 +13,7 @@
 <br>
 <div class="row text-center">
 	<button class="btn btn-primary" id="clearButton">Clear</button>
-	<button class="btn btn-primary" id="sendButton">Send data</button>
+	<button class="btn btn-primary" id="sendButton">Save groundtruth and next image</button>
 	<input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
 </div>
 {% endblock %}
