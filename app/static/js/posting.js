@@ -14,7 +14,7 @@ function getCookie(name) {
 	return cookieValue;
 	}
 	
-function sender(data, url, img_name) {
+function sender(data, url, img_name, img_width, img_height, checkpoint) {
 	
 	var csrftoken = getCookie('csrftoken')
 	var xhttp = new XMLHttpRequest();
@@ -41,6 +41,7 @@ function sender(data, url, img_name) {
 			// switch http status code
 			switch (this.status) {
 				case 200:
+					window.location = response
 					console.log(response);
 					break;
 				case 400:
@@ -63,6 +64,6 @@ function sender(data, url, img_name) {
 	   // set json headers
 	xhttp.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 		// format data into json and send request
-	xhttp.send(JSON.stringify({'mask' :data, 'img_name': img_name}));
- 
+	xhttp.send(JSON.stringify({'img_name': img_name, 'checkpoint': checkpoint, 'img_width': img_width, 'img_height': img_height, 'mask' :data}));
+ 	
 }

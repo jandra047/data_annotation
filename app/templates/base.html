@@ -44,9 +44,8 @@
 			{% block content %}{% endblock %}
 		</div>
 		<footer>
+			{% block script %}{% endblock %}
 			<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-			<script src="{{ url_for('static', filename='js/posting.js') }}"></script>
-			<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/bootstrap-slider.min.js"></script>
 		</footer>
 	</body>

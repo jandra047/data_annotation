@@ -1,7 +1,7 @@
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
-from flask import render_template, request, redirect, url_for, send_from_directory, flash
-from app.functions import save_mask, load_image, add_to_done
+from flask import render_template, request, redirect, url_for, send_from_directory, flash, make_response
+from app.functions import save_mask, load_image, add_to_done, create_user_files, create_mask_from_png
 from PIL import Image
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User
@@ -12,18 +12,35 @@ import os
 @login_required
 def index():
 	title = 'DataAnnotation'
-	img_path, img_name = load_image(current_user)
-	img = Image.open(img_path)
-	return render_template('index.html', title = title, img=img, filename=img_name)
+	try:
+		img_path, img_name, mask_path = load_image(current_user)
+		img = Image.open(img_path)
+		if mask_path:
+			mask = create_mask_from_png(mask_path)
+		else:
+			mask=None
+	except:
+		img = None
+		img_name = None
+		mask = None
+	return render_template('index.html', title = title, img=img, filename=img_name, mask = mask)
 
 
 @app.route('/receiver', methods=['GET', 'POST'])
 def receive():
 	mask = request.json['mask']
 	img_name = request.json['img_name']
-	save_mask(mask, current_user, img_name)
-	add_to_done(img_name, current_user)
-	return redirect(url_for('index'))
+	checkpoint = request.json['checkpoint']
+	img_height = request.json['img_height']
+	img_width = request.json['img_width']
+	
+	if not checkpoint:
+		save_mask(mask, current_user, img_name, img_height, img_width, checkpoint=False)
+		add_to_done(img_name, current_user)
+		return url_for('index')
+	else:
+		save_mask(mask, current_user, img_name, img_height, img_width, checkpoint=True)
+		return '#'
 
 @app.route('/images/<path:filename>')
 def images(filename):
@@ -60,9 +77,10 @@ def register():
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
+        user.set_homedir()
         db.session.add(user)
         db.session.commit()
-        os.mkdir(app.config['USERS_HOME_DIR'] + form.username.data)
+        create_user_files(user)
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)

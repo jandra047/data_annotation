@@ -3,6 +3,8 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
+{% if img %}
+{{ filename}}
 <div class="outsideWrapper" id="outsideWrapper">
     <div class="insideWrapper">
         <img src="{{ url_for('images', filename=filename) }}" id="coveredImage" class="coveredImage" name={{ filename }}>
@@ -13,7 +15,19 @@
 <br>
 <div class="row text-center">
 	<button class="btn btn-primary" id="clearButton">Clear</button>
+	<button class="btn btn-primary" id="checkpointButton">Save checkpoint</button>
 	<button class="btn btn-primary" id="sendButton">Save groundtruth and next image</button>
 	<input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
 </div>
+
+{% else %}
+<h1>You have labeled all images currently available</h1>
+{% endif %}
 {% endblock %}
+
+{% block script %}
+<script type="text/javascript">var mask = {{ mask | tojson }};</script>
+<script src="{{ url_for('static', filename='js/posting.js') }}"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+{% endblock %}
+			
