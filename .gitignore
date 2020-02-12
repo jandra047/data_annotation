@@ -1,7 +1,7 @@
 reset_DB
 reset_user_progress
-users/*
 images/*
+app.db
 
 
 # Byte-compiled / optimized / DLL files

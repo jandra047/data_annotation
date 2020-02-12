@@ -1,7 +1,7 @@
 import os
 
 class Config(object):
-	SECRET_KEY = 'Lec'
+	SECRET_KEY = 'A-very-secret-key'
 	APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 	SQLALCHEMY_DATABASE_URI = \
 		os.environ.get('DATABASE_URL') or 'sqlite:///' + APP_ROOT + '/app.db'
