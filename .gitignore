@@ -1,7 +1,7 @@
 reset_DB
 reset_user_progress
-images/*
 app.db
+images
 migrations
 
 
