@@ -15,6 +15,15 @@ $( document ).ready(function () {
 	layer1.ctx.globalAlpha = 1;
 	layer1.ctx.fillStyle = 'rgb(255,255,255)';
 
+
+	var layer2 = document.createElement("canvas");
+	layer2.width = canvas.width;
+	layer2.height = canvas.height;
+	layer2.ctx = layer1.getContext('2d');
+	layer2.ctx.globalAlpha = 1;
+	layer2.ctx.fillStyle = 'rgb(255,255,255)';
+
+
 	if (mask) {
 		drawMask(mask)
 	}
@@ -52,11 +61,8 @@ $( document ).ready(function () {
 		mouse_pos = getMousePos(canvas, e);
 		var x = mouse_pos['x'];
 		var y = mouse_pos['y'];
-		//var x = e.pageX - rect.left;
-		//var y = e.pageY - rect.top;
 		var radius = brushRadius.getValue();
-		//ctx.globalCompositeOperation = "source-out";
-		
+				
 		layer1.ctx.beginPath();
 		layer1.ctx.arc(x, y, radius, 0, 2*Math.PI);
 		layer1.ctx.fill();
@@ -90,6 +96,19 @@ $( document ).ready(function () {
 	
 	canvas.onmousemove = function(e) {
 		if (!canvas.isDrawing) {
+
+			//clearCanvas(ctx);
+			ctx.globalCompositeOperation = "source-out";
+			mouse_pos = getMousePos(canvas, e);
+			var x = mouse_pos['x'];
+			var y = mouse_pos['y'];
+			var radius = brushRadius.getValue();
+			
+			ctx.beginPath();
+			ctx.arc(x, y, radius, 0, 2*Math.PI);
+			ctx.fill();
+			ctx.drawImage(layer1, 0, 0);
+
 			return;		
 		}
 		drawCircle(e);		
