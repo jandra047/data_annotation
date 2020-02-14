@@ -6,10 +6,13 @@
 {% if img %}
 {{ filename}}
 <div class="outsideWrapper" id="outsideWrapper">
-    <div class="insideWrapper">
-        <img src="{{ url_for('images', filename=filename) }}" id="coveredImage" class="coveredImage" name={{ filename }}>
-        <canvas id='inputCanvas' class="coveringCanvas" width={{ img.size[0] }} height={{ img.size[1] }}></canvas>
-    </div>
+	<div class="insideWrapper">
+		<img src="{{ url_for('images', filename=filename) }}" id="coveredImage" class="coveredImage" name={{ filename }}>
+		<canvas id='inputCanvas' class="coveringCanvas" width={{ img.size[0] }} height={{ img.size[1] }}></canvas>
+		
+		<canvas id="layer2" width={{ img.size[0] }} height={{ img.size[1] }} style="position: absolute; left: 0; top: 0;"></canvas>
+</div>
+	</div>
 </div>
 
 <br>
