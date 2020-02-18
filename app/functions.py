@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from flask import url_for
 import os
-
+from skimage.segmentation import slic
 
 def save_mask(data, user, img_name, img_height,  img_width, checkpoint):
 	mask = np.array(data)
@@ -58,3 +58,8 @@ def create_mask_from_png(path):
 	mask[:,:,3] = 255*(mask[:,:,2]>0)
 	mask = np.ravel(mask).tolist()
 	return mask
+
+def create_segments(image):
+	segments = slic(image, n_segments=100, compactness=10, sigma=0, multichannel=True).ravel()
+	segments = np.repeat(segments, 4).tolist()
+	return segments

@@ -22,6 +22,12 @@
 	<button class="btn btn-primary" id="sendButton">Save groundtruth and next image</button>
 	<input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
 </div>
+<div class="radio">
+	<label><input type="radio" value='brush' name="optradio" checked>Brush</label>
+</div>
+<div class="radio">
+	<label><input type="radio" value='superpixel' name="optradio">Superpixels</label>
+</div>
 
 {% else %}
 <h1>You have labeled all images currently available</h1>
@@ -29,7 +35,7 @@
 {% endblock %}
 
 {% block script %}
-<script type="text/javascript">var mask = {{ mask | tojson }};</script>
+<script type="text/javascript">var mask = {{ mask | tojson }}; var segments = {{ segments  | tojson}};</script>
 <script src="{{ url_for('static', filename='js/posting.js') }}"></script>
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 {% endblock %}
