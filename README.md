@@ -14,5 +14,5 @@ flask db init
 flask db migrate -m 'User table'
 flask db upgrade
 ```
-3. Add images to `images` folder with images you want to label 
+3. Create `images` folder and add images you want to label 
 4. `flask run`
