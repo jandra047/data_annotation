@@ -1,3 +1,4 @@
+from flask import jsonify
 from app import app, db
 from app.forms import LoginForm, RegistrationForm
 from flask import render_template, request, redirect, url_for, send_from_directory, flash, make_response
@@ -50,6 +51,14 @@ def receive():
 @app.route('/images/<path:filename>')
 def images(filename):
 	return send_from_directory(app.config['IMAGES_DIR'], filename)
+
+@app.route('/segment_calc', methods=['GET', 'POST'])
+def calculateSegments():
+	segment_num = request.json['segmentNumber']
+	img_name = request.json['img_name']
+	img = Image.open(app.config['IMAGES_DIR'] + img_name)
+	segments = create_segments(img, segment_num)
+	return jsonify(segments), 201
 
 
 @app.route('/users/<path:username>')

@@ -14,7 +14,7 @@ function getCookie(name) {
 	return cookieValue;
 	}
 	
-function sender(data, url, img_name, img_width, img_height, checkpoint) {
+function sender(context) {
 	
 	var csrftoken = getCookie('csrftoken')
 	var xhttp = new XMLHttpRequest();
@@ -22,7 +22,7 @@ function sender(data, url, img_name, img_width, img_height, checkpoint) {
 	var method = 'POST';
 	var asynchronous = true;
 
-	xhttp.open(method, url, asynchronous);
+	xhttp.open(method, context.url, asynchronous);
 
 	xhttp.setRequestHeader('X-CSRFToken', csrftoken);
 	//xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
@@ -42,7 +42,10 @@ function sender(data, url, img_name, img_width, img_height, checkpoint) {
 			switch (this.status) {
 				case 200:
 					window.location = response
-					console.log(response);
+					//console.log(response);
+					break;
+				case 201:
+					segments = response;
 					break;
 				case 400:
 					console.log(response);
@@ -64,6 +67,14 @@ function sender(data, url, img_name, img_width, img_height, checkpoint) {
 	   // set json headers
 	xhttp.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 		// format data into json and send request
-	xhttp.send(JSON.stringify({'img_name': img_name, 'checkpoint': checkpoint, 'img_width': img_width, 'img_height': img_height, 'mask' :data}));
+	switch (context.url) {
+		case '/receiver':
+			xhttp.send(JSON.stringify({'img_name': context.imageName, 'checkpoint': context.isCheckpoint, 'img_width': context.imageWidth, 'img_height': context.imageHeight, 'mask' :context.data}));
+			break;
+		case '/segment_calc':
+			xhttp.send(JSON.stringify({'segmentNumber': context.segmentNumber, 'img_name':context.imageName}));
+			break;
+		}
+	
  	
 }
