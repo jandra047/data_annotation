@@ -3,6 +3,7 @@ reset_user_progress
 app.db
 images
 migrations
+TODO
 
 
 # Byte-compiled / optimized / DLL files
