@@ -2,6 +2,7 @@ $( document ).ready(function () {
 	
 
 	var isCheckpoint = false;
+	var isClear = false;
 
 	/* Setting up main canvas from which data is eventually sent to server */
 	var mainCanvas = document.getElementById('inputCanvas');
@@ -115,7 +116,17 @@ $( document ).ready(function () {
 		};
 	}
 
-	function drawCircle(event, isHover=false) {
+
+
+	function drawCircle(event, isHover=false, isClear=false) {
+		
+		if (isClear) {
+			offscreenCanvas.ctx.globalCompositeOperation = 'destination-out'
+		} else {
+			offscreenCanvas.ctx.globalCompositeOperation = 'source-over'	
+		}
+
+		
 		if (isHover) {
 			clearCanvas(hoverCanvas.ctx);
 			mouse = getMousePos(mainCanvas, event);
@@ -157,14 +168,25 @@ $( document ).ready(function () {
 	}
 
 	mainCanvas.onmousedown = function(event) {
-		mainCanvas.isDrawing = true;
 		
-		if (document.querySelector('input[name="optradio"]:checked').value == 'brush') {
-				drawCircle(event, isHover=false);
-				} else if (document.querySelector('input[name="optradio"]:checked').value == 'superpixel') {
-					drawSegment(event, isHover=false);
-					
-				}
+		if (event.button === 0) {
+			isClear = false;
+			mainCanvas.isDrawing = true;
+			if (document.querySelector('input[name="optradio"]:checked').value == 'brush') {
+					drawCircle(event, isHover=false, isClear);
+					} else if (document.querySelector('input[name="optradio"]:checked').value == 'superpixel') {
+						drawSegment(event, isHover=false);
+					}
+		}
+		if (event.button === 2) {
+			mainCanvas.isDrawing = true;
+			isClear = true;
+			if (document.querySelector('input[name="optradio"]:checked').value == 'brush') {
+					drawCircle(event, isHover=false, isClear);
+					} else if (document.querySelector('input[name="optradio"]:checked').value == 'superpixel') {
+						drawSegment(event, isHover=false);
+					}
+		}
 	}
 
 	window.onmouseup = function(e) {
@@ -172,14 +194,20 @@ $( document ).ready(function () {
 		}
 	
 	mainCanvas.onmousemove = function(event) {
+
 		if (!mainCanvas.isDrawing) {
 			if (document.querySelector('input[name="optradio"]:checked').value == 'brush') {
-				drawCircle(event, isHover=true);
+				drawCircle(event, isHover=true, isClear);
 				} else if (document.querySelector('input[name="optradio"]:checked').value == 'superpixel') {
 					drawSegment(event, isHover=true);
 					}
 		} else if (document.querySelector('input[name="optradio"]:checked').value == 'brush') {
-			drawCircle(event, isHover=false);
+			if (!isClear) {
+				drawCircle(event, isHover=false, isClear);
+			} else {
+				console.log(event.button)
+				drawCircle(event, isHover=false, isClear);
+			}
 		} else {
 			drawSegment(event, isHover=false);
 		}
@@ -202,11 +230,19 @@ $( document ).ready(function () {
 		imageName = document.getElementById('coveredImage').name;
 		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName});
 	});
+<<<<<<< HEAD
 	$("#menu-toggle").click(function(e) {
 		e.preventDefault();
 		$("#wrapper").toggleClass("toggled");
 	});
 	
+=======
+	
+	window.oncontextmenu = function () {
+    
+    return false;     // cancel default menu
+	}
+>>>>>>> master
 })
 
 
