@@ -202,7 +202,10 @@ $( document ).ready(function () {
 		imageName = document.getElementById('coveredImage').name;
 		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName});
 	});
-	
+	$("#menu-toggle").click(function(e) {
+		e.preventDefault();
+		$("#wrapper").toggleClass("toggled");
+	});
 	
 })
 
