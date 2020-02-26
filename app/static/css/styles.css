@@ -28,6 +28,10 @@
 	position:absolute; top:0px; left:0px;
 }
 
+.btn {
+	margin-bottom: 10px;
+}
+
 body {
 	overflow-x: hidden;
 }
@@ -70,6 +74,6 @@ body {
 	}
 
 	#wrapper.toggled #sidebar-wrapper {
-	margin-left: -15rem;
+	margin-left: -30rem;
 	}
 }
