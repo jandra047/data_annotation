@@ -230,19 +230,19 @@ $( document ).ready(function () {
 		imageName = document.getElementById('coveredImage').name;
 		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName});
 	});
-<<<<<<< HEAD
+
 	$("#menu-toggle").click(function(e) {
 		e.preventDefault();
 		$("#wrapper").toggleClass("toggled");
 	});
 	
-=======
+
 	
 	window.oncontextmenu = function () {
     
     return false;     // cancel default menu
 	}
->>>>>>> master
+
 })
 
 
