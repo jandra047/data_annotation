@@ -5,31 +5,70 @@
 {% block tools %}
 	<!-- Sidebar -->
 	
-	<div class="bg-light border-right" id="sidebar-wrapper">
-		<div class="sidebar-heading">Tools</div>
-		<div class="list-group list-group-flush">
-			<button class="btn btn-primary" id="clearButton">Clear</button>
-			<button class="btn btn-primary" id="checkpointButton">Save checkpoint</button>
-			<button class="btn btn-primary" id="sendButton">Save groundtruth and next image</button>
-			
-			<div class="form-group d-flex">
-				<input id="ex1" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
-			</div>
-			<div class="form-group d-flex">
-				<input id="ex2" class="segments" data-slider-id='ex1Slider' type="text" data-slider-min="100" data-slider-max="1000" data-slider-step="10" data-slider-value="400"/>
-			</div>
-			<button class="btn btn-primary" id="calculateSegments">Calculate segments</button>
+		<nav class="bg-light border-right" id="sidebar">
+			<div class="sidebar-header">Tools</div>
+			<div class="list-group list-group-flush">
 
 
-			
-			<div class="radio">
-				<label><input type="radio" value='brush' name="optradio" checked>Brush</label>
+			<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+				<li class="nav-item">
+					<a name='brush' class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Brush</a>
+				</li>
+				<li class="nav-item">
+					<a name='SP' class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">SP</a>
+				</li>
+				
+			</ul>
+			<div class="tab-content" id="pills-tabContent">
+				<div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+					<label for="brushRadius">Brush radius</label>
+						<input id="brushRadius" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
+				</div>
+					<div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+						<label for="segmentNumber">Number of segments</label>
+							<input id="segmentNumber" data-slider-id='ex2Slider' type="text" data-slider-min="100" data-slider-max="1000" data-slider-step="10" data-slider-value="200"/>
+							<button class="btn btn-primary" id="calculateSegments">Calculate segments</button>
+					</div>
 			</div>
-			<div class="radio">
-				<label><input type="radio" value='superpixel' name="optradio">Superpixels</label>
+
+
+
+
+<!-- 
+				<div class="btn-group btn-group-toggle" data-toggle="buttons">
+					<label data-toggle="pill" href="#brushMenu" class="btn btn-outline-dark active">
+							<input type="radio" name="optradio" id="option1" value="brush" checked> Brush
+					</label>
+					<label data-toggle="pill" href="#segmentMenu" class="btn btn-outline-dark">
+							<input type="radio" name="optradio" id="option2" value="superpixel"> SP
+					</label>
+				</div>
+
+
+				<div class="tab-content">
+					<div id="brushMenu" class="tab-pane fade active">
+							<label for="brushRadius">Brush radius</label>
+							<input id="brushRadius" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
+							
+					</div>
+					<div id="segmentMenu" class="tab-pane fade">
+							<label for="segmentNumber">Number of segments</label>
+							<input id="segmentNumber" data-slider-id='ex2Slider' type="text" data-slider-min="100" data-slider-max="1000" data-slider-step="10" data-slider-value="200"/>
+							<button class="btn btn-primary" id="calculateSegments">Calculate segments</button>
+					</div>
+				</div>
+
+	-->				
+				
+
+				<hr>
+				<button class="btn btn-primary" id="clearButton">Clear</button>
+				<button class="btn btn-primary" id="checkpointButton">Save checkpoint</button>
+				<button class="btn btn-primary" id="sendButton">Save groundtruth and next image</button>
+						
 			</div>
-		</div>
-	</div>
+		</nav>
+
 {% endblock %}
 
 

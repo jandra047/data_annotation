@@ -28,12 +28,12 @@ $( document ).ready(function () {
 	var clearBtn = document.getElementById('clearButton');
 	var sendBtn = document.getElementById('sendButton');
 	var checkpointBtn = document.getElementById('checkpointButton')
-	var brushRadius = new Slider('#ex1', {
+	var brushRadius = new Slider('#brushRadius', {
 		formatter: function(value) {
 			return 'Brush radius: ' + value;
 		}
 	});
-	var segmentNumber = new Slider('.segments', {
+	var segmentNumber = new Slider('#segmentNumber', {
 		formatter: function(value) {
 			return 'Number of segments: ' + value;
 		}
@@ -91,10 +91,10 @@ $( document ).ready(function () {
 		
 		for (let i = 0; i < segments.length; i++) {
 		  if (segments[i] !== segment) {
-		  	segs[i] = 0
+			segs[i] = 0
 		  } 
 		  else {
-		  	segs[i] = 255
+			segs[i] = 255
 		  }
 		}
 		segment_imagedata.data.set(segs);
@@ -205,7 +205,6 @@ $( document ).ready(function () {
 			if (!isClear) {
 				drawCircle(event, isHover=false, isClear);
 			} else {
-				console.log(event.button)
 				drawCircle(event, isHover=false, isClear);
 			}
 		} else {
@@ -231,16 +230,14 @@ $( document ).ready(function () {
 		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName});
 	});
 
-	$("#menu-toggle").click(function(e) {
-		e.preventDefault();
-		$("#wrapper").toggleClass("toggled");
+	$('#sidebarCollapse').on('click', function () {
+		$('#sidebar').toggleClass('active');
 	});
 	
 
-	
+	// Cancel default right-click menu
 	window.oncontextmenu = function () {
-    
-    return false;     // cancel default menu
+		return false;     
 	}
 
 })

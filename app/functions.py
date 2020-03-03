@@ -59,7 +59,7 @@ def create_mask_from_png(path):
 	mask = np.ravel(mask).tolist()
 	return mask
 
-def create_segments(image, n_segments=100):
+def create_segments(image, n_segments=200):
 	segments = slic(image, n_segments=n_segments, compactness=10, sigma=0, multichannel=True).ravel()
 	segments = np.repeat(segments, 4).tolist()
 	return segments
