@@ -3,6 +3,7 @@ $( document ).ready(function () {
 
 	var isCheckpoint = false;
 	var isClear = false;
+	var tool = 'brush'
 
 	/* Setting up main canvas from which data is eventually sent to server */
 	var mainCanvas = document.getElementById('inputCanvas');
@@ -44,7 +45,7 @@ $( document ).ready(function () {
 		drawMask(mask)
 	}
 
-	function combineImageData (imgdata1, imgdata2) {
+	function combineImageData (imgdata1, imgdata2, isClear=false) {
 		var canvas = document.getElementById('inputCanvas');
 		imageData_1_data = imgdata1.data;
 		imageData_2_data = imgdata2.data;
@@ -52,9 +53,16 @@ $( document ).ready(function () {
 
 		var newImageData = new ImageData(canvas.width, canvas.height);
 		for (var i = 0; i <= imageData_1_data.length; i++ ) {
-			combinedImageData[i] = imageData_1_data[i] + imageData_2_data[i];
+			if (!isClear) {
+				combinedImageData[i] = imageData_1_data[i] + imageData_2_data[i];	
+			}
+			else {
+				combinedImageData[i] = imageData_1_data[i] * imageData_2_data[i];
+			}
+			
 			
 		}
+
 		newImageData.data.set(combinedImageData);
 		return newImageData;
 		}
@@ -65,7 +73,7 @@ $( document ).ready(function () {
 		}
 		return imageData;
 	}
-	function drawSegment(event, isHover=false) {
+	function drawSegment(event, isHover=false, isClear=false) {
 		if (isHover) {
 			clearCanvas(hoverCanvas.ctx);
 			segmentImageData = calculateSegment(event);
@@ -74,28 +82,46 @@ $( document ).ready(function () {
 
 			}
 		else {
-			clearCanvas(mainCanvas.ctx, hoverCanvas.ctx);
-			segmentImageData = calculateSegment(event);
-			offscreenCanvasImageData = offscreenCanvas.ctx.getImageData(0,0,hoverCanvas.width, hoverCanvas.height);
-			combinedImageData = combineImageData(offscreenCanvasImageData, segmentImageData);
-			offscreenCanvas.ctx.putImageData(combinedImageData, 0, 0);
-			mainCanvas.ctx.drawImage(offscreenCanvas, 0, 0)
+			if (!isClear) {
+				clearCanvas(mainCanvas.ctx, hoverCanvas.ctx);
+				segmentImageData = calculateSegment(event);
+				offscreenCanvasImageData = offscreenCanvas.ctx.getImageData(0,0,hoverCanvas.width, hoverCanvas.height);
+				combinedImageData = combineImageData(offscreenCanvasImageData, segmentImageData);
+				offscreenCanvas.ctx.putImageData(combinedImageData, 0, 0);
+				mainCanvas.ctx.drawImage(offscreenCanvas, 0, 0);
+			}
+			else {
+				clearCanvas(mainCanvas.ctx, hoverCanvas.ctx);
+				segmentImageData = calculateSegment(event, isClear=true);
+				offscreenCanvasImageData = offscreenCanvas.ctx.getImageData(0,0,hoverCanvas.width, hoverCanvas.height);
+				combinedImageData = combineImageData(offscreenCanvasImageData, segmentImageData, isClear=true);
+				offscreenCanvas.ctx.putImageData(combinedImageData, 0, 0);
+				mainCanvas.ctx.drawImage(offscreenCanvas, 0, 0);			
+			}
 		}		
 	}
 
-	function calculateSegment(event) {
+	function calculateSegment(event, isClear=false) {
 		var segs = new Uint8ClampedArray(segments.length);
 		mouse = getMousePos(mainCanvas, event);
 		segment = segments[(mainCanvas.width * (Math.round(mouse.y)-1) + Math.round(mouse.x))*4];
 		var segment_imagedata = new ImageData(width = mainCanvas.width, height=mainCanvas.height)
 		
 		for (let i = 0; i < segments.length; i++) {
-		  if (segments[i] !== segment) {
-			segs[i] = 0
-		  } 
-		  else {
-			segs[i] = 255
-		  }
+				if (segments[i] !== segment) {
+					if (!isClear) {
+						segs[i] = 0;
+					} else {
+						segs[i] = 1;
+					}
+				} 
+				else {
+					if (!isClear) {
+					segs[i] = 255;
+					} else {
+						segs[i] = 0;
+					}
+				}
 		}
 		segment_imagedata.data.set(segs);
 		return segment_imagedata;
@@ -172,19 +198,19 @@ $( document ).ready(function () {
 		if (event.button === 0) {
 			isClear = false;
 			mainCanvas.isDrawing = true;
-			if (document.querySelector('input[name="optradio"]:checked').value == 'brush') {
+			if (tool == 'brush') {
 					drawCircle(event, isHover=false, isClear);
-					} else if (document.querySelector('input[name="optradio"]:checked').value == 'superpixel') {
+					} else if (tool == 'superpixel') {
 						drawSegment(event, isHover=false);
 					}
 		}
 		if (event.button === 2) {
 			mainCanvas.isDrawing = true;
 			isClear = true;
-			if (document.querySelector('input[name="optradio"]:checked').value == 'brush') {
+			if (tool == 'brush') {
 					drawCircle(event, isHover=false, isClear);
-					} else if (document.querySelector('input[name="optradio"]:checked').value == 'superpixel') {
-						drawSegment(event, isHover=false);
+					} else if (tool == 'superpixel') {
+						drawSegment(event, isHover=false, isClear=true);
 					}
 		}
 	}
@@ -196,12 +222,12 @@ $( document ).ready(function () {
 	mainCanvas.onmousemove = function(event) {
 
 		if (!mainCanvas.isDrawing) {
-			if (document.querySelector('input[name="optradio"]:checked').value == 'brush') {
+			if (tool == 'brush') {
 				drawCircle(event, isHover=true, isClear);
-				} else if (document.querySelector('input[name="optradio"]:checked').value == 'superpixel') {
+				} else if (tool == 'superpixel') {
 					drawSegment(event, isHover=true);
 					}
-		} else if (document.querySelector('input[name="optradio"]:checked').value == 'brush') {
+		} else if (tool == 'brush') {
 			if (!isClear) {
 				drawCircle(event, isHover=false, isClear);
 			} else {
@@ -212,6 +238,9 @@ $( document ).ready(function () {
 		}
 	}
 
+	mainCanvas.onmouseout = function(event) {
+		clearCanvas(hoverCanvas.ctx);
+	}
 
 	checkpointBtn.addEventListener('click', function (){
 		isCheckpoint = true;
@@ -239,6 +268,13 @@ $( document ).ready(function () {
 	window.oncontextmenu = function () {
 		return false;     
 	}
+
+
+
+	$('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+		tool = $(e.target).attr("value") // activated tab
+		
+	});
 
 })
 
