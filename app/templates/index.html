@@ -14,7 +14,7 @@
 			<a name='brush' value="brush" class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Brush</a>
 		</li>
 		<li class="nav-item">
-			<a name='SP'  value="superpixel" class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">SP</a>
+			<a name='SP'  value="superpixel" class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Superpixel</a>
 		</li>
 		
 	</ul>
@@ -26,6 +26,17 @@
 			<div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
 				<label for="segmentNumber">Number of segments</label>
 					<input id="segmentNumber" data-slider-id='ex2Slider' type="text" data-slider-min="100" data-slider-max="1000" data-slider-step="10" data-slider-value="200"/>
+					<div class="dropdown">
+						<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								Slic
+						</button>
+						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+								<a class="dropdown-item" href="#">Slic</a>
+								<a class="dropdown-item" href="#">Felzenszwalb</a>
+								<a class="dropdown-item" href="#">Quickshift</a>
+								<a class="dropdown-item" href="#">Watershed</a>
+						</div>
+					</div>
 					<button class="btn btn-primary" id="calculateSegments">Calculate segments</button>
 			</div>
 	</div>
@@ -42,7 +53,6 @@
 
 {% block content %}
 	{% if img %}
-		{{ filename}}
 		<div class="outsideWrapper" id="outsideWrapper">
 			<div class="insideWrapper">
 				<img src="{{ url_for('images', filename=filename) }}" id="coveredImage" class="coveredImage" name={{ filename }}>

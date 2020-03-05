@@ -72,7 +72,7 @@ function sender(context) {
 			xhttp.send(JSON.stringify({'img_name': context.imageName, 'checkpoint': context.isCheckpoint, 'img_width': context.imageWidth, 'img_height': context.imageHeight, 'mask' :context.data}));
 			break;
 		case '/segment_calc':
-			xhttp.send(JSON.stringify({'segmentNumber': context.segmentNumber, 'img_name':context.imageName}));
+			xhttp.send(JSON.stringify({'segmentNumber': context.segmentNumber, 'img_name':context.imageName, 'algorithm':context.algorithm}));
 			break;
 		}
 	

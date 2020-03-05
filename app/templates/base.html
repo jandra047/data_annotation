@@ -20,7 +20,7 @@
 
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav mr-auto">
-					<li> <button type="button" id="sidebarCollapse" class="btn btn-info"><i class="fa fa-cog"></i><span>Tools</span></button></li>
+					<li> <button type="button" id="sidebarCollapse" class="btn btn-info"><i class="fa fa-cog"></i><span> Tools</span></button></li>
 					<li class="nav-item active"><a class='nav-link' href="{{ url_for('index') }}">Home</a></li>
 					{% if current_user.is_anonymous %}
 						<li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
@@ -33,9 +33,10 @@
 		</nav>
 		<!-- Sidebar + content -->
 		<div class="wrapper">
-				{% block tools %}
-				{% endblock %}
-
+				{% if img %}
+					{% block tools %}
+					{% endblock %}
+				{% endif %}
 		
 
 

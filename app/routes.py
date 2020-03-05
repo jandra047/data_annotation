@@ -18,8 +18,6 @@ def index():
 		img_path, img_name, mask_path = load_image(current_user)
 		img = Image.open(img_path)
 		segments = create_segments(img)
-
-
 		if mask_path:
 			mask = create_mask_from_png(mask_path)
 		else:
@@ -56,8 +54,9 @@ def images(filename):
 def calculateSegments():
 	segment_num = request.json['segmentNumber']
 	img_name = request.json['img_name']
+	algorithm = request.json['algorithm']
 	img = Image.open(app.config['IMAGES_DIR'] + img_name)
-	segments = create_segments(img, segment_num)
+	segments = create_segments(img, algorithm, segment_num)
 	return jsonify(segments), 201
 
 

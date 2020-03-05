@@ -3,7 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from flask import url_for
 import os
-from skimage.segmentation import slic
+from skimage.segmentation import slic, watershed, quickshift, felzenszwalb
+from skimage.color import rgb2gray
+from skimage.filters import sobel
+
 
 def save_mask(data, user, img_name, img_height,  img_width, checkpoint):
 	mask = np.array(data)
@@ -59,7 +62,18 @@ def create_mask_from_png(path):
 	mask = np.ravel(mask).tolist()
 	return mask
 
-def create_segments(image, n_segments=200):
-	segments = slic(image, n_segments=n_segments, compactness=10, sigma=0, multichannel=True).ravel()
-	segments = np.repeat(segments, 4).tolist()
+def create_segments(image, algorithm='Slic', n_segments=200):
+	if algorithm == 'Slic':
+		segments = slic(image, n_segments=n_segments, compactness=10, sigma=0, multichannel=True).ravel()
+		segments = np.repeat(segments, 4).tolist()
+	elif algorithm == 'Watershed':
+		gradient = sobel(rgb2gray(np.array(image)))
+		segments = watershed(gradient, markers=250, compactness=0.001).ravel()
+		segments = np.repeat(segments, 4).tolist()
+	elif algorithm == 'Felzenszwalb':
+		segments = felzenszwalb(image, scale=100, sigma=0.5, min_size=50).ravel()
+		segments = np.repeat(segments, 4).tolist()
+	else:
+		segments = quickshift(image, kernel_size=3, max_dist=6, ratio=0.5).ravel()
+		segments = np.repeat(segments, 4).tolist()
 	return segments

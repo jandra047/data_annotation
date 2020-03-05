@@ -256,7 +256,8 @@ $( document ).ready(function () {
 	calculateSegmentsBtn.addEventListener('click', function (){
 		var numSegments = segmentNumber.getValue();
 		imageName = document.getElementById('coveredImage').name;
-		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName});
+		var algorithm = document.getElementById('dropdownMenuButton').innerHTML;
+		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName, 'algorithm':algorithm});
 	});
 
 	$('#sidebarCollapse').on('click', function () {
@@ -273,7 +274,12 @@ $( document ).ready(function () {
 
 	$('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
 		tool = $(e.target).attr("value") // activated tab
-		
+	});
+
+	$(".dropdown-menu a").click(function(){
+		var selText = $(this).text();
+		$("#dropdownMenuButton").html(selText);
+		//$(this).parents('.dropdown').find('.dropdown-toggle').val(selText);
 	});
 
 })
