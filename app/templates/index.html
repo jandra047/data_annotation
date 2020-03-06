@@ -5,29 +5,36 @@
 {% block tools %}
 <!-- Sidebar -->
 <nav class="bg-light border-right" id="sidebar">
-	<div class="sidebar-header">Tools</div>
+	<div class="sidebar-header">
+		<h2>Tools</h2>
+	</div>
+	<br>
 	<div class="list-group list-group-flush">
 
 
-	<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-		<li class="nav-item">
-			<a name='brush' value="brush" class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Brush</a>
-		</li>
-		<li class="nav-item">
-			<a name='SP'  value="superpixel" class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Superpixel</a>
-		</li>
-		
-	</ul>
-	<div class="tab-content" id="pills-tabContent">
-		<div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-			<label for="brushRadius">Brush radius</label>
-				<input id="brushRadius" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
-		</div>
+		<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+			<li class="nav-item">
+				<a name='brush' value="brush" class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Brush</a>
+			</li>
+			<li class="nav-item">
+				<a name='SP'  value="superpixel" class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Superpixel</a>
+			</li>
+		</ul>
+
+
+		<div class="tab-content" id="pills-tabContent">
+			
+			<div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+				<label for="brushRadius">Brush radius</label>
+					<input id="brushRadius" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
+			</div>
+
 			<div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
 				<label for="segmentNumber">Number of segments</label>
 					<input id="segmentNumber" data-slider-id='ex2Slider' type="text" data-slider-min="100" data-slider-max="1000" data-slider-step="10" data-slider-value="200"/>
 					<div class="dropdown">
-						<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<label>Algorithm: </label>
+						<button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								Slic
 						</button>
 						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -39,13 +46,14 @@
 					</div>
 					<button class="btn btn-primary" id="calculateSegments">Calculate segments</button>
 			</div>
-	</div>
 
-		<hr>
-		<button class="btn btn-primary" id="clearButton">Clear</button>
-		<button class="btn btn-primary" id="checkpointButton">Save checkpoint</button>
-		<button class="btn btn-primary" id="sendButton">Save groundtruth and next image</button>
-				
+		</div>
+		<hr>	
+	</div>
+	<div id="actionButtons">
+			<button class="btn btn-outline-danger" id="clearButton">Clear</button>
+			<button class="btn btn-outline-primary" id="checkpointButton">Save checkpoint</button>
+			<button class="btn btn-outline-success" id="sendButton">Save groundtruth and next image</button>
 	</div>
 </nav>
 {% endblock %}
@@ -54,12 +62,11 @@
 {% block content %}
 	{% if img %}
 		<div class="outsideWrapper" id="outsideWrapper">
-			<div class="insideWrapper">
-				<img src="{{ url_for('images', filename=filename) }}" id="coveredImage" class="coveredImage" name={{ filename }}>
-				<canvas id='inputCanvas' class="coveringCanvas" width={{ img.size[0] }} height={{ img.size[1] }}></canvas>
-				
-				<canvas id="layer2" width={{ img.size[0] }} height={{ img.size[1] }} style="position: absolute; left: 0; top: 0;"></canvas>
-			</div>
+			
+				<img src="{{ url_for('images', filename=filename) }}" width="{{ img.size[0] }}" id="coveredImage" class="coveredImage" name={{ filename }}>
+				<canvas id='inputCanvas' class="coveringCanvas" width="{{ img.size[0] }}" height="{{ img.size[1] }}"></canvas>
+				<canvas id="layer2" width="{{ img.size[0] }}" height="{{ img.size[1] }}" style="position: absolute; left: 0; top: 0;"></canvas>
+			
 		</div>
 		
 		<br>
