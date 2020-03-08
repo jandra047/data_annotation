@@ -4,13 +4,9 @@
 
 {% block tools %}
 <!-- Sidebar -->
-<nav class="bg-light border-right" id="sidebar">
-	<div class="sidebar-header">
-		<h2>Tools</h2>
-	</div>
-	<br>
+<nav class="bg-light border-right active" id="sidebar">
+	
 	<div class="list-group list-group-flush">
-
 
 		<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
 			<li class="nav-item">
@@ -21,34 +17,39 @@
 			</li>
 		</ul>
 
-
 		<div class="tab-content" id="pills-tabContent">
 			
 			<div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
 				<label for="brushRadius">Brush radius</label>
-					<input id="brushRadius" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
+					<input id="brushRadius"  class="Slider" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
 			</div>
 
 			<div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-				<label for="segmentNumber">Number of segments</label>
-					<input id="segmentNumber" data-slider-id='ex2Slider' type="text" data-slider-min="100" data-slider-max="1000" data-slider-step="10" data-slider-value="200"/>
-					<div class="dropdown">
-						<label>Algorithm: </label>
-						<button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								Slic
-						</button>
-						<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-								<a class="dropdown-item" href="#">Slic</a>
-								<a class="dropdown-item" href="#">Felzenszwalb</a>
-								<a class="dropdown-item" href="#">Quickshift</a>
-								<a class="dropdown-item" href="#">Watershed</a>
-						</div>
+				<div class="dropdown">
+					<label>Algorithm: </label>
+					<button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							Slic
+					</button>
+					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+							<a class="dropdown-item" href="#">Slic</a>
+							<a class="dropdown-item" href="#">Felzenszwalb</a>
+							<a class="dropdown-item" href="#">Quickshift</a>
+							<a class="dropdown-item" href="#">Watershed</a>
 					</div>
-					<button class="btn btn-primary" id="calculateSegments">Calculate segments</button>
+				</div>
+				<div id="segNumSlider">
+					<label for="segmentNumber">Number of segments</label>
+					<input id="segmentNumber" class="Slider" data-slider-id='ex1Slider' type="text" data-slider-min="100" data-slider-max="1000" data-slider-step="10" data-slider-value="200"/>
+				</div>
+				<button class="btn btn-primary" id="calculateSegments">Calculate segments</button>
 			</div>
 
 		</div>
 		<hr>	
+	</div>
+	<div>
+		<label for="zoomSlider">Zoom</label>
+		<input id="zoomSlider" class="Slider" data-slider-id='ex1Slider' type="text" data-slider-min="100" data-slider-max="200" data-slider-step="1" data-slider-value="100"/>
 	</div>
 	<div id="actionButtons">
 			<button class="btn btn-outline-danger" id="clearButton">Clear</button>

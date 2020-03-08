@@ -5,6 +5,7 @@ $( document ).ready(function () {
 	var isClear = false;
 	var tool = 'brush'
 
+	var image = document.getElementById('coveredImage');
 	/* Setting up main canvas from which data is eventually sent to server */
 	var mainCanvas = document.getElementById('inputCanvas');
 	mainCanvas.ctx = mainCanvas.getContext('2d');
@@ -40,6 +41,13 @@ $( document ).ready(function () {
 		}
 	});
 
+	var zoomSlider = new Slider('#zoomSlider', {
+		formatter: function(value) {
+			return 'Zoom: ' + value + ' %';
+		}
+	});
+
+	
 	/* If a mask is provided from checkpoint folder */
 	if (mask) {
 		drawMask(mask)
@@ -187,7 +195,7 @@ $( document ).ready(function () {
 		for (var i = 3; i <= imageData.length; i = i+4) {
 			data.push(imageData[i]);
 		}
-		imageName = document.getElementById('coveredImage').name;
+		imageName = image.name;
 		imageWidth = mainCanvas.width;
 		imageHeight = mainCanvas.height;
 		sender({'url':'/receiver', 'data':data, 'imageName':imageName, 'imageWidth':imageWidth, 'imageHeight':imageHeight, 'isCheckpoint':isCheckpoint});
@@ -255,10 +263,19 @@ $( document ).ready(function () {
 	});
 	calculateSegmentsBtn.addEventListener('click', function (){
 		var numSegments = segmentNumber.getValue();
-		imageName = document.getElementById('coveredImage').name;
+		imageName = image.name;
 		var algorithm = document.getElementById('dropdownMenuButton').innerHTML;
 		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName, 'algorithm':algorithm});
 	});
+
+	$('#zoomSlider').on('slide', function () {
+		zoom = String(this.value) + "%";
+		image.style.width = zoom;
+		layer2.style.width = zoom;
+		mainCanvas.style.width = zoom;
+	});
+
+
 
 	$('#sidebarCollapse').on('click', function () {
 		$('#sidebar').toggleClass('active');
@@ -279,7 +296,11 @@ $( document ).ready(function () {
 	$(".dropdown-menu a").click(function(){
 		var selText = $(this).text();
 		$("#dropdownMenuButton").html(selText);
-		//$(this).parents('.dropdown').find('.dropdown-toggle').val(selText);
+		if (selText == "Slic") {
+			$("#segNumSlider").show();
+		} else {
+			$("#segNumSlider").hide();
+		}
 	});
 
 })

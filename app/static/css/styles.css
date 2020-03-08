@@ -2,14 +2,27 @@
 #footer{
 	margin-top: 100px;
 }
+
 #ex1Slider .slider-selection {
 	background: #ABCDEF;
 }
 
-#ex2Slider .slider-selection {
-	background: #ABCDEF;
+
+#pills-tabContent {
+	border-top: 1px solid;
+	padding-top: 10px;
+	margin-bottom: 5px;
 }
 
+#segNumSlider {
+	padding-bottom: 15px;
+}
+
+#actionButtons {
+	padding-top: 10px;
+	border-top: 1px solid;
+	align-self: flex-end;
+}
 .outsideWrapper{ 
 	display: inline-block; 
 	position: relative; 
@@ -66,11 +79,14 @@ body {
 }
 
 #sidebar {
+	display: flex;
+	flex-direction: column;
     min-width: 250px;
     max-width: 250px;
 	height: 50%;
 	flex: 0 0 auto;
 	align-self: center;
+	margin-left: -250px;
 }
 
 #sidebar * {
@@ -78,21 +94,7 @@ body {
 	align-self: center;
 }
 
-#sidebar .custom-menu {
-      float:left;
-    color:#779DD7;
-    padding:2px 4px;
-}
-
 #sidebar.active {
-    margin-left: -250px;
+    margin-left: 0px;
 }
 
-@media (max-width: 768px) {
-    #sidebar {
-        margin-left: -250px;
-    }
-    #sidebar.active {
-        margin-left: 0;
-    }
-}	
