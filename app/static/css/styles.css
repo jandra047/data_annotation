@@ -115,7 +115,7 @@ body {
 	justify-content: space-between;
 	min-width: 250px;
 	max-width: 250px;
-	height: 480px;
+	height: auto;
 	flex: 0 0 auto;
 	align-self: center;
 	margin-left: -250px;
