@@ -80,7 +80,7 @@ def login():
 			next_page = url_for('index')
 		return redirect(next_page)
 		#return redirect(url_for('index'))
-	return render_template('login.html', title='Sign In', form=form)
+	return render_template('login.html', title='DataAnnotation - Log in', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -96,7 +96,7 @@ def register():
 		create_user_files(user)
 		flash('Congratulations, you are now a registered user!')
 		return redirect(url_for('login'))
-	return render_template('register.html', title='Register', form=form)
+	return render_template('register.html', title='DataAnnotation - Register', form=form)
 
 @app.route('/logout')
 def logout():

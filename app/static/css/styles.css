@@ -9,7 +9,6 @@
 
 
 #pills-tabContent {
-	border-top: 1px solid;
 	padding-top: 10px;
 	margin-bottom: 5px;
 }
@@ -20,9 +19,13 @@
 
 #actionButtons {
 	padding-top: 10px;
-	border-top: 1px solid;
 	align-self: flex-end;
 }
+
+#actionButtons * {
+	margin: 3px;
+}
+
 .outsideWrapper{ 
 	height: auto;
 	display: inline-block; 
@@ -64,10 +67,6 @@
 	width: 100%;
 }
 #content {
-	display: flex;
-	justify-content: flex-start;
-	flex-direction: column;
-	align-content: center;
 	margin-top: 70px;
 	margin-left: 0px;
 	max-width: 2000px;
