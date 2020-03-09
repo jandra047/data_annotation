@@ -1,5 +1,12 @@
 $( document ).ready(function () {
 	
+	if (window.location.pathname == '/login' || window.location.pathname == '/register') {
+		var contentDiv = document.getElementById('content');
+		// contentDiv.style.backgroundImage = contentDiv.style.backgroundImage 
+		console.log(contentDiv.style.backgroundImage, 'test')
+	} 
+
+
 	var currentMaskSaved = false;
 	var isCheckpoint = false;
 	var isClear = false;

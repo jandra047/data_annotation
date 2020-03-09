@@ -31,27 +31,7 @@
 	<p class="text-center"><a href="{{ url_for('register') }}">Register</a></p>
 </div>
 
+{% endblock %}
 
-<!-- 
-
-	<form action="" method="post" novalidate>
-		{{ form.hidden_tag() }}
-		<p>
-			<i class="fa fa-user"></i>
-			{{ form.username(size=32) }}<br>
-			{% for error in form.username.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-		</p>
-		<p>
-			<i class="fa fa-lock"></i>
-			{{ form.password(size=32) }}<br>
-			{% for error in form.password.errors %}
-			<span style="color: red;">[{{ error }}]</span>
-			{% endfor %}
-		</p>
-		<p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-		<p>{{ form.submit() }}</p>
-	</form> -->
-
+{% block script %}
 {% endblock %}

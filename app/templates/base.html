@@ -42,7 +42,10 @@
 		
 
 
-			<div id="content" class="container main-container">
+			<div id="content" class="container main-container" 
+			{% if request.path == '/login'  or request.path == '/register' %}
+				style="background-image: url({{ url_for('static', filename='images/slide.png') }}); background-size: cover;" 
+			{% endif %}>
 				{% with messages = get_flashed_messages() %}
 					{% if messages %}
 						<div class="alert alert-info" role="alert">
