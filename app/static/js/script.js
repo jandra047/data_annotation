@@ -1,11 +1,13 @@
 $( document ).ready(function () {
 	
-
+	var currentMaskSaved = false;
 	var isCheckpoint = false;
 	var isClear = false;
 	var tool = 'brush'
 
 	var image = document.getElementById('coveredImage');
+	var originalImageWidth = image.width;
+	var originalImageHeight = image.height;
 	/* Setting up main canvas from which data is eventually sent to server */
 	var mainCanvas = document.getElementById('inputCanvas');
 	mainCanvas.ctx = mainCanvas.getContext('2d');
@@ -202,6 +204,7 @@ $( document ).ready(function () {
 	}
 
 	mainCanvas.onmousedown = function(event) {
+		currentMaskSaved = true;
 		
 		if (event.button === 0) {
 			isClear = false;
@@ -252,6 +255,7 @@ $( document ).ready(function () {
 
 	checkpointBtn.addEventListener('click', function (){
 		isCheckpoint = true;
+		currentMaskSaved = false;
 		sendData();
 		});
 	clearBtn.addEventListener('click', function (){
@@ -259,20 +263,24 @@ $( document ).ready(function () {
 	});
 	sendBtn.addEventListener('click', function (){
 		isCheckpoint = false;
+		currentMaskSaved = false;
 		sendData();
 	});
 	calculateSegmentsBtn.addEventListener('click', function (){
+		var loadingSpinner = document.getElementById('loadingSpinner');
+		loadingSpinner.style.display = 'inline-block';
 		var numSegments = segmentNumber.getValue();
 		imageName = image.name;
 		var algorithm = document.getElementById('dropdownMenuButton').innerHTML;
 		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName, 'algorithm':algorithm});
 	});
 
-	$('#zoomSlider').on('slide', function () {
-		zoom = String(this.value) + "%";
-		image.style.width = zoom;
-		layer2.style.width = zoom;
-		mainCanvas.style.width = zoom;
+	$('#zoomSlider').on('change', function () {
+		zoom = this.value;
+		image.style.width = String(originalImageWidth*zoom ) + "px";
+		outsideWrapper.style.width = String(originalImageWidth*zoom) + "px";
+		outsideWrapper.style.height = String(originalImageHeight*zoom) + "px";
+		
 	});
 
 
@@ -302,6 +310,15 @@ $( document ).ready(function () {
 			$("#segNumSlider").hide();
 		}
 	});
+
+	window.onbeforeunload = function() {
+		if (currentMaskSaved) {
+			return "Do you really want to leave our brilliant application?";
+		} else {
+			return;
+		}
+	};
+
 
 })
 

@@ -42,10 +42,11 @@ function sender(context) {
 			switch (this.status) {
 				case 200:
 					window.location = response
-					//console.log(response);
 					break;
 				case 201:
 					segments = response;
+					var loadingSpinner = document.getElementById('loadingSpinner');
+					loadingSpinner.style.display = 'none';
 					break;
 				case 400:
 					console.log(response);

@@ -10,26 +10,24 @@
 
 		<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
 			<li class="nav-item">
-				<a name='brush' value="brush" class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Brush</a>
+				<a name='brush' value="brush" class="nav-link active" id="pills-brush-tab" data-toggle="pill" href="#pills-brush" role="tab" aria-controls="pills-brush" aria-selected="true">Brush</a>
 			</li>
 			<li class="nav-item">
-				<a name='SP'  value="superpixel" class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Superpixel</a>
+				<a name='SP'  value="superpixel" class="nav-link" id="pills-superpixel-tab" data-toggle="pill" href="#pills-superpixel" role="tab" aria-controls="pills-superpixel" aria-selected="false">Superpixel</a>
 			</li>
 		</ul>
 
 		<div class="tab-content" id="pills-tabContent">
 			
-			<div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+			<div class="tab-pane fade show active" id="pills-brush" role="tabpanel" aria-labelledby="pills-brush-tab">
 				<label for="brushRadius">Brush radius</label>
 					<input id="brushRadius"  class="Slider" data-slider-id='ex1Slider' type="text" data-slider-min="0" data-slider-max="80" data-slider-step="1" data-slider-value="20"/>
 			</div>
 
-			<div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+			<div class="tab-pane fade" id="pills-superpixel" role="tabpanel" aria-labelledby="pills-superpixel-tab">
 				<div class="dropdown">
 					<label>Algorithm: </label>
-					<button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							Slic
-					</button>
+					<button class="btn btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Slic</button>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 							<a class="dropdown-item" href="#">Slic</a>
 							<a class="dropdown-item" href="#">Felzenszwalb</a>
@@ -39,9 +37,13 @@
 				</div>
 				<div id="segNumSlider">
 					<label for="segmentNumber">Number of segments</label>
-					<input id="segmentNumber" class="Slider" data-slider-id='ex1Slider' type="text" data-slider-min="100" data-slider-max="1000" data-slider-step="10" data-slider-value="200"/>
+					<input id="segmentNumber" class="Slider" data-slider-id='ex1Slider' type="text" data-slider-min="100" data-slider-max="1500" data-slider-step="10" data-slider-value="200"/>
 				</div>
+					
 				<button class="btn btn-primary" id="calculateSegments">Calculate segments</button>
+				<div id="loadingSpinner" class="spinner-grow text-primary" role="status">
+						<span class="sr-only">Loading...</span>
+				</div>
 			</div>
 
 		</div>
@@ -49,9 +51,9 @@
 	</div>
 	<div>
 		<label for="zoomSlider">Zoom</label>
-		<input id="zoomSlider" class="Slider" data-slider-id='ex1Slider' type="text" data-slider-min="100" data-slider-max="200" data-slider-step="1" data-slider-value="100"/>
+		<input id="zoomSlider" class="Slider" data-slider-id='ex1Slider' type="text" data-slider-min="1" data-slider-max="2" data-slider-step="0.02" data-slider-value="1"/>
 	</div>
-	<div id="actionButtons">
+	<div id="actionButtons" class="mr-auto">
 			<button class="btn btn-outline-danger" id="clearButton">Clear</button>
 			<button class="btn btn-outline-primary" id="checkpointButton">Save checkpoint</button>
 			<button class="btn btn-outline-success" id="sendButton">Save groundtruth and next image</button>
@@ -63,11 +65,11 @@
 {% block content %}
 	{% if img %}
 		<div class="outsideWrapper" id="outsideWrapper">
-			
+			<div class="insideWrapper" id="insideWrapper">
 				<img src="{{ url_for('images', filename=filename) }}" width="{{ img.size[0] }}" id="coveredImage" class="coveredImage" name={{ filename }}>
 				<canvas id='inputCanvas' class="coveringCanvas" width="{{ img.size[0] }}" height="{{ img.size[1] }}"></canvas>
 				<canvas id="layer2" width="{{ img.size[0] }}" height="{{ img.size[1] }}" style="position: absolute; left: 0; top: 0;"></canvas>
-			
+			</div>
 		</div>
 		
 		<br>

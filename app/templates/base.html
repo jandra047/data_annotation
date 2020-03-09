@@ -2,7 +2,6 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> -->
 		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
 		<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.6.2/css/bootstrap-slider.min.css">
@@ -19,14 +18,17 @@
 			</button>
 
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				{% if img %}
 				<ul class="navbar-nav mr-auto">
 					<li> <button type="button" id="sidebarCollapse" class="btn btn-info"><i class="fa fa-cog"></i><span> Tools</span></button></li>
-					<li class="nav-item active"><a class='nav-link' href="{{ url_for('index') }}">Home</a></li>
+				</ul>
+				{% endif %}
+				<ul class="navbar-nav ml-auto">
 					{% if current_user.is_anonymous %}
 						<li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
 						<li class="nav-item"><a class='nav-link' href="{{ url_for('register') }}">Register</a></li>
 					{% else %}
-						<li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+						<li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}"><i id="logout-icon" class="fa fa-sign-out" aria-hidden="true"></i></a></li>
 					{% endif %}
 				</ul>
 			</div>
@@ -44,11 +46,11 @@
 				{% with messages = get_flashed_messages() %}
 					{% if messages %}
 						<div class="alert alert-info" role="alert">
-							<ul>
+							
 								{% for message in messages %}
-								<li>{{ message }}</li>
+									{{ message }}
 								{% endfor %}
-							</ul>
+							
 						</div>
 					{% endif %}
 				{% endwith %}
