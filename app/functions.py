@@ -62,9 +62,9 @@ def create_mask_from_png(path):
 	mask = np.ravel(mask).tolist()
 	return mask
 
-def create_segments(image, algorithm='Slic', n_segments=200):
+def create_segments(image, algorithm='Slic', n_segments=200, compactness=10):
 	if algorithm == 'Slic':
-		segments = slic(image, n_segments=n_segments, compactness=10, sigma=0, multichannel=True).ravel()
+		segments = slic(image, n_segments=n_segments, compactness=compactness, sigma=0, multichannel=True).ravel()
 		segments = np.repeat(segments, 4).tolist()
 	elif algorithm == 'Watershed':
 		gradient = sobel(rgb2gray(np.array(image)))

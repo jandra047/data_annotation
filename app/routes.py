@@ -41,7 +41,9 @@ def receive():
 	if not checkpoint:
 		save_mask(mask, current_user, img_name, img_height, img_width, checkpoint=False)
 		add_to_done(img_name, current_user)
-		return url_for('index')
+		res_obj = make_response(url_for('index'))
+		res_obj.headers['Endpoint'] = 'receiver'
+		return res_obj
 	else:
 		save_mask(mask, current_user, img_name, img_height, img_width, checkpoint=True)
 		return '#'
@@ -56,8 +58,11 @@ def calculateSegments():
 	img_name = request.json['img_name']
 	algorithm = request.json['algorithm']
 	img = Image.open(app.config['IMAGES_DIR'] + img_name)
-	segments = create_segments(img, algorithm, segment_num)
-	return jsonify(segments), 201
+	compactness = request.json['compactness']
+	segments = create_segments(img, algorithm, segment_num, compactness)
+	res_obj = make_response(jsonify(segments))
+	res_obj.headers['Endpoint'] = 'calculateSegments'
+	return res_obj
 
 
 @app.route('/users/<path:username>')

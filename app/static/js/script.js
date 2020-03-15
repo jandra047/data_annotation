@@ -1,10 +1,5 @@
 $( document ).ready(function () {
 	
-	if (window.location.pathname == '/login' || window.location.pathname == '/register') {
-		var contentDiv = document.getElementById('content');
-		// contentDiv.style.backgroundImage = contentDiv.style.backgroundImage 
-		console.log(contentDiv.style.backgroundImage, 'test')
-	} 
 
 
 	var currentMaskSaved = false;
@@ -28,7 +23,7 @@ $( document ).ready(function () {
 	offscreenCanvas.ctx.globalAlpha = 1;
 	offscreenCanvas.ctx.fillStyle = 'rgb(255,255,255)';
 
-	/* Canvas for visualising brush or superpixel area */
+	/* Canvas for visualising brush or superpixel area on mouse hover */
 	var hoverCanvas = document.getElementById('layer2');
 	hoverCanvas.ctx = hoverCanvas.getContext('2d');
 	hoverCanvas.ctx.globalAlpha = 0.5;
@@ -49,7 +44,11 @@ $( document ).ready(function () {
 			return 'Number of segments: ' + value;
 		}
 	});
-
+	var slicCompactness = new Slider('#slicCompactness', {
+		formatter: function(value) {
+			return 'Compactness: ' + value;
+		}
+	});
 	var zoomSlider = new Slider('#zoomSlider', {
 		formatter: function(value) {
 			return 'Zoom: ' + value + ' %';
@@ -62,12 +61,32 @@ $( document ).ready(function () {
 		drawMask(mask)
 	}
 
+	function drawMask(mask) {
+		maskImageData = mainCanvas.ctx.createImageData(width=mainCanvas.width, height=mainCanvas.height);
+		maskImageData.data.set(mask);
+		offscreenCanvas.ctx.putImageData(maskImageData, 0, 0);
+		mainCanvas.ctx.drawImage(offscreenCanvas, 0, 0);
+	}
+
+	function getMousePos(canvas, event) {
+		var rect = mainCanvas.getBoundingClientRect();
+		return {
+			x: (event.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+			y: (event.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+		};
+	}
+
+	function clearCanvas() {
+		for (var i = 0; i < arguments.length; i++) {
+		arguments[i].clearRect(0, 0, arguments[i].canvas.width, arguments[i].canvas.height);
+		}
+	}
+
 	function combineImageData (imgdata1, imgdata2, isClear=false) {
 		var canvas = document.getElementById('inputCanvas');
 		imageData_1_data = imgdata1.data;
 		imageData_2_data = imgdata2.data;
 		var combinedImageData = new Uint8ClampedArray(imageData_1_data.length);
-
 		var newImageData = new ImageData(canvas.width, canvas.height);
 		for (var i = 0; i <= imageData_1_data.length; i++ ) {
 			if (!isClear) {
@@ -75,11 +94,8 @@ $( document ).ready(function () {
 			}
 			else {
 				combinedImageData[i] = imageData_1_data[i] * imageData_2_data[i];
-			}
-			
-			
+			}	
 		}
-
 		newImageData.data.set(combinedImageData);
 		return newImageData;
 		}
@@ -90,6 +106,7 @@ $( document ).ready(function () {
 		}
 		return imageData;
 	}
+
 	function drawSegment(event, isHover=false, isClear=false) {
 		if (isHover) {
 			clearCanvas(hoverCanvas.ctx);
@@ -144,32 +161,12 @@ $( document ).ready(function () {
 		return segment_imagedata;
 	}
 	
-	function drawMask(mask) {
-		maskImageData = mainCanvas.ctx.createImageData(width=mainCanvas.width, height=mainCanvas.height);
-		maskImageData.data.set(mask);
-		offscreenCanvas.ctx.putImageData(maskImageData, 0, 0);
-		mainCanvas.ctx.drawImage(offscreenCanvas, 0, 0);
-	}
-
-	function getMousePos(canvas, event) {
-		var rect = mainCanvas.getBoundingClientRect();
-		return {
-			x: (event.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
-			y: (event.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
-		};
-	}
-
-
-
 	function drawCircle(event, isHover=false, isClear=false) {
-		
 		if (isClear) {
 			offscreenCanvas.ctx.globalCompositeOperation = 'destination-out'
 		} else {
 			offscreenCanvas.ctx.globalCompositeOperation = 'source-over'	
-		}
-
-		
+		}	
 		if (isHover) {
 			clearCanvas(hoverCanvas.ctx);
 			mouse = getMousePos(mainCanvas, event);
@@ -191,13 +188,6 @@ $( document ).ready(function () {
 		}		
 	}
 
-	function clearCanvas() {
-		for (var i = 0; i < arguments.length; i++) {
-		arguments[i].clearRect(0, 0, arguments[i].canvas.width, arguments[i].canvas.height);
-		}
-
-	}
-
 	function sendData() {
 		imageData = mainCanvas.ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height).data;
 		data = [];
@@ -209,10 +199,13 @@ $( document ).ready(function () {
 		imageHeight = mainCanvas.height;
 		sender({'url':'/receiver', 'data':data, 'imageName':imageName, 'imageWidth':imageWidth, 'imageHeight':imageHeight, 'isCheckpoint':isCheckpoint});
 	}
-
+	
+	window.onmouseup = function(e) {
+		mainCanvas.isDrawing = false;
+		}
+	
 	mainCanvas.onmousedown = function(event) {
 		currentMaskSaved = true;
-		
 		if (event.button === 0) {
 			isClear = false;
 			mainCanvas.isDrawing = true;
@@ -228,17 +221,12 @@ $( document ).ready(function () {
 			if (tool == 'brush') {
 					drawCircle(event, isHover=false, isClear);
 					} else if (tool == 'superpixel') {
-						drawSegment(event, isHover=false, isClear=true);
+						drawSegment(event, isHover=false, isClear);
 					}
 		}
 	}
 
-	window.onmouseup = function(e) {
-		mainCanvas.isDrawing = false;
-		}
-	
 	mainCanvas.onmousemove = function(event) {
-
 		if (!mainCanvas.isDrawing) {
 			if (tool == 'brush') {
 				drawCircle(event, isHover=true, isClear);
@@ -264,45 +252,43 @@ $( document ).ready(function () {
 		isCheckpoint = true;
 		currentMaskSaved = false;
 		sendData();
-		});
+	});
+
 	clearBtn.addEventListener('click', function (){
 		clearCanvas(offscreenCanvas.ctx, mainCanvas.ctx, hoverCanvas.ctx)
 	});
+
 	sendBtn.addEventListener('click', function (){
 		isCheckpoint = false;
 		currentMaskSaved = false;
 		sendData();
 	});
+
 	calculateSegmentsBtn.addEventListener('click', function (){
 		var loadingSpinner = document.getElementById('loadingSpinner');
 		loadingSpinner.style.display = 'inline-block';
 		var numSegments = segmentNumber.getValue();
 		imageName = image.name;
 		var algorithm = document.getElementById('dropdownMenuButton').innerHTML;
-		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName, 'algorithm':algorithm});
+		var compactness = slicCompactness.getValue();
+		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName, 'algorithm':algorithm, 'compactness':compactness});
 	});
 
 	$('#zoomSlider').on('change', function () {
 		zoom = this.value;
 		image.style.width = String(originalImageWidth*zoom ) + "px";
 		outsideWrapper.style.width = String(originalImageWidth*zoom) + "px";
-		outsideWrapper.style.height = String(originalImageHeight*zoom) + "px";
-		
+		outsideWrapper.style.height = String(originalImageHeight*zoom) + "px";	
 	});
-
-
 
 	$('#sidebarCollapse').on('click', function () {
 		$('#sidebar').toggleClass('active');
 	});
 	
-
 	// Cancel default right-click menu
 	window.oncontextmenu = function () {
 		return false;     
 	}
-
-
 
 	$('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
 		tool = $(e.target).attr("value") // activated tab
@@ -312,9 +298,9 @@ $( document ).ready(function () {
 		var selText = $(this).text();
 		$("#dropdownMenuButton").html(selText);
 		if (selText == "Slic") {
-			$("#segNumSlider").show();
+			$("#slicParams").show();
 		} else {
-			$("#segNumSlider").hide();
+			$("#slicParams").hide();
 		}
 	});
 
@@ -325,7 +311,6 @@ $( document ).ready(function () {
 			return;
 		}
 	};
-
 
 })
 

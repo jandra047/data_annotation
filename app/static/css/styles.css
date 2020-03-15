@@ -19,7 +19,7 @@
 
 #actionButtons {
 	padding-top: 10px;
-	align-self: flex-end;
+	margin-bottom: 5px;
 }
 
 #actionButtons * {
@@ -119,6 +119,7 @@ body {
 	flex: 0 0 auto;
 	align-self: center;
 	margin-left: -250px;
+	border-radius: 5%;
 }
 
 #sidebar * {

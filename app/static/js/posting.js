@@ -32,33 +32,22 @@ function sender(context) {
 
 		if (this.readyState === XMLHttpRequest.DONE) {
 			var response = this.responseText;
+			var endpoint = this.getResponseHeader('Endpoint');
 			// try parse json response
+			
 			try {
 				response = JSON.parse(this.responseText);
 			} catch (e) {
 				// not json
 			}
-			// switch http status code
-			switch (this.status) {
-				case 200:
-					window.location = response
-					break;
-				case 201:
+			switch (endpoint) {
+				case 'calculateSegments':
 					segments = response;
 					var loadingSpinner = document.getElementById('loadingSpinner');
 					loadingSpinner.style.display = 'none';
 					break;
-				case 400:
-					console.log(response);
-					break;
-				case 404:
-					console.log(response);
-					break;
-				case 500:
-					console.log(response);
-					break;
-				default:
-					// do nothing
+				case 'receiver':
+					window.location = response;
 					break;
 			}
 		}
@@ -73,7 +62,7 @@ function sender(context) {
 			xhttp.send(JSON.stringify({'img_name': context.imageName, 'checkpoint': context.isCheckpoint, 'img_width': context.imageWidth, 'img_height': context.imageHeight, 'mask' :context.data}));
 			break;
 		case '/segment_calc':
-			xhttp.send(JSON.stringify({'segmentNumber': context.segmentNumber, 'img_name':context.imageName, 'algorithm':context.algorithm}));
+			xhttp.send(JSON.stringify({'segmentNumber': context.segmentNumber, 'img_name':context.imageName, 'algorithm':context.algorithm, 'compactness':context.compactness}));
 			break;
 		}
 	
