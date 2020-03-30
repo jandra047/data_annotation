@@ -1,33 +1,39 @@
 $( document ).ready(function () {
 	
+	window.reloadVariables = function() {
+		currentMaskSaved = true;
+		isCheckpoint = false;
+		isClear = false;
+		originalImageWidth = image.width;
+		originalImageHeight = image.height;
+		mainCanvas.width = image.width;
+		mainCanvas.height = image.height;
+		offscreenCanvas.width = image.width;
+		offscreenCanvas.height = image.height;
+		hoverCanvas.width = image.width;
+		hoverCanvas.height = image.height;
+	}
 
 
-	var currentMaskSaved = false;
-	var isCheckpoint = false;
-	var isClear = false;
-	var tool = 'brush'
-
-	var image = document.getElementById('coveredImage');
-	var originalImageWidth = image.width;
-	var originalImageHeight = image.height;
-	/* Setting up main canvas from which data is eventually sent to server */
-	var mainCanvas = document.getElementById('inputCanvas');
+	tool = 'brush'	
+	segments = []
+	image = document.getElementById('coveredImage');
+	/* Setting up main canvas from which data is eventually sent to server */	
+	mainCanvas = document.getElementById('inputCanvas');
 	mainCanvas.ctx = mainCanvas.getContext('2d');
 	mainCanvas.ctx.globalAlpha = 0.4;
 	
 	/* Offscreen canvas is used to draw to main canvas with transparency */
-	var offscreenCanvas = document.createElement("canvas");
-	offscreenCanvas.width = mainCanvas.width;
-	offscreenCanvas.height = mainCanvas.height;
+	offscreenCanvas = document.createElement("canvas");
 	offscreenCanvas.ctx = offscreenCanvas.getContext('2d');
 	offscreenCanvas.ctx.globalAlpha = 1;
 	offscreenCanvas.ctx.fillStyle = 'rgb(255,255,255)';
-
 	/* Canvas for visualising brush or superpixel area on mouse hover */
-	var hoverCanvas = document.getElementById('layer2');
+	hoverCanvas = document.getElementById('hoverCanvas');
 	hoverCanvas.ctx = hoverCanvas.getContext('2d');
 	hoverCanvas.ctx.globalAlpha = 0.5;
 	hoverCanvas.ctx.fillStyle = 'rgb(255,255,255)';
+	
 	
 	/* Buttons and sliders  */
 	var calculateSegmentsBtn = document.getElementById('calculateSegments');
@@ -60,6 +66,14 @@ $( document ).ready(function () {
 	if (mask) {
 		drawMask(mask)
 	}
+	// function basicSetup() {
+		
+	// 	console.log(image)
+	// }
+	
+	
+
+	
 
 	function drawMask(mask) {
 		maskImageData = mainCanvas.ctx.createImageData(width=mainCanvas.width, height=mainCanvas.height);
@@ -171,7 +185,6 @@ $( document ).ready(function () {
 			clearCanvas(hoverCanvas.ctx);
 			mouse = getMousePos(mainCanvas, event);
 			var radius = brushRadius.getValue();
-					
 			hoverCanvas.ctx.beginPath();
 			hoverCanvas.ctx.arc(mouse.x, mouse.y, radius, 0, 2*Math.PI);
 			hoverCanvas.ctx.fill();
@@ -190,14 +203,36 @@ $( document ).ready(function () {
 
 	function sendData() {
 		imageData = mainCanvas.ctx.getImageData(0, 0, mainCanvas.width, mainCanvas.height).data;
-		data = [];
+		imgdata = [];
 		for (var i = 3; i <= imageData.length; i = i+4) {
-			data.push(imageData[i]);
+			imgdata.push(imageData[i]);
 		}
+		
+		data = {
+			'url' : '/receiver',
+			'imgdata' : imgdata,
+			'imageName' : image.name,
+			'imageWidth' : mainCanvas.width,
+			'imageHeight' : mainCanvas.height, 
+			'isCheckpoint' : isCheckpoint
+			};
+		sender(data);
+	}
+
+	function getSegments() {
+		var numSegments = segmentNumber.getValue();
 		imageName = image.name;
-		imageWidth = mainCanvas.width;
-		imageHeight = mainCanvas.height;
-		sender({'url':'/receiver', 'data':data, 'imageName':imageName, 'imageWidth':imageWidth, 'imageHeight':imageHeight, 'isCheckpoint':isCheckpoint});
+		var algorithm = document.getElementById('dropdownMenuButton').innerHTML;
+		var compactness = slicCompactness.getValue();
+
+		data = {
+			'url' : '/segment_calc',
+			'segmentNumber' : numSegments,
+			'imageName' : imageName,
+			'algorithm' : algorithm,
+			'compactness' : compactness
+		}
+		sender(data);
 	}
 	
 	window.onmouseup = function(e) {
@@ -205,7 +240,7 @@ $( document ).ready(function () {
 		}
 	
 	mainCanvas.onmousedown = function(event) {
-		currentMaskSaved = true;
+		currentMaskSaved = false;
 		if (event.button === 0) {
 			isClear = false;
 			mainCanvas.isDrawing = true;
@@ -250,28 +285,28 @@ $( document ).ready(function () {
 
 	checkpointBtn.addEventListener('click', function (){
 		isCheckpoint = true;
-		currentMaskSaved = false;
+		currentMaskSaved = true;
 		sendData();
 	});
 
 	clearBtn.addEventListener('click', function (){
-		clearCanvas(offscreenCanvas.ctx, mainCanvas.ctx, hoverCanvas.ctx)
+		// clearCanvas(offscreenCanvas.ctx, mainCanvas.ctx, hoverCanvas.ctx);
+		// basicSetup();
 	});
 
 	sendBtn.addEventListener('click', function (){
 		isCheckpoint = false;
-		currentMaskSaved = false;
+		currentMaskSaved = true;
 		sendData();
+		clearCanvas(offscreenCanvas.ctx, mainCanvas.ctx, hoverCanvas.ctx);
 	});
+
+	
 
 	calculateSegmentsBtn.addEventListener('click', function (){
 		var loadingSpinner = document.getElementById('loadingSpinner');
 		loadingSpinner.style.display = 'inline-block';
-		var numSegments = segmentNumber.getValue();
-		imageName = image.name;
-		var algorithm = document.getElementById('dropdownMenuButton').innerHTML;
-		var compactness = slicCompactness.getValue();
-		sender({'url':'/segment_calc', 'segmentNumber':numSegments, 'imageName':imageName, 'algorithm':algorithm, 'compactness':compactness});
+		getSegments();
 	});
 
 	$('#zoomSlider').on('change', function () {
@@ -305,13 +340,17 @@ $( document ).ready(function () {
 	});
 
 	window.onbeforeunload = function() {
-		if (currentMaskSaved) {
-			return "Do you really want to leave our brilliant application?";
+		if (!currentMaskSaved) {
+			return "Current mask not saved!";
 		} else {
 			return;
 		}
 	};
 
+
+	// basicSetup();
+	getSegments();
+	reloadVariables();
 })
 
 

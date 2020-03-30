@@ -6,7 +6,7 @@ import os
 from skimage.segmentation import slic, watershed, quickshift, felzenszwalb
 from skimage.color import rgb2gray
 from skimage.filters import sobel
-
+from PIL import Image
 
 def save_mask(data, user, img_name, img_height,  img_width, checkpoint):
 	mask = np.array(data)
@@ -22,20 +22,27 @@ def save_mask(data, user, img_name, img_height,  img_width, checkpoint):
 	return 0
 
 def load_image(user):
-	mask_path = None
+	mask = None
 	all_images = os.listdir(app.config['IMAGES_DIR'])
-	if not os.listdir(user.home_path + '/checkpoint'):
-		with open(user.home_path + '/done_images.txt', 'r') as file:
-			done_images = file.read().splitlines()
-			for image in all_images:
-				if image not in done_images:
-					return app.config['IMAGES_DIR'] + image	, image, mask_path
-	else:
-		img_name = os.listdir(user.home_path + '/checkpoint')[0] + '.jpg'
-		path = app.config['IMAGES_DIR'] +  img_name 
-		mask_path = user.home_path + '/checkpoint/' + img_name[:-4]
-		return path, img_name, mask_path
-
+	try:
+		if not os.listdir(user.home_path + '/checkpoint'):
+			with open(user.home_path + '/done_images.txt', 'r') as file:
+				done_images = file.read().splitlines()
+				for image_name in all_images:
+					if image_name not in done_images:
+						img = Image.open(app.config['IMAGES_DIR'] + image_name)
+						return img, image_name, mask
+		else:
+			img_name = os.listdir(user.home_path + '/checkpoint')[0] + '.jpg'
+			img = Image.open(app.config['IMAGES_DIR'] +  img_name)
+			mask_path = user.home_path + '/checkpoint/' + img_name[:-4]
+			mask = create_mask_from_png(mask_path)
+			return img, img_name, mask
+	except:
+		img = None
+		img_name = None
+		mask = None
+		return img, img_name, mask
 
 def add_to_done(img_name, user):
 	with open(user.home_path + '/done_images.txt', 'a') as file:
@@ -62,7 +69,8 @@ def create_mask_from_png(path):
 	mask = np.ravel(mask).tolist()
 	return mask
 
-def create_segments(image, algorithm='Slic', n_segments=200, compactness=10):
+def create_segments(image_path, algorithm='Slic', n_segments=200, compactness=10):
+	image = Image.open(image_path)
 	if algorithm == 'Slic':
 		segments = slic(image, n_segments=n_segments, compactness=compactness, sigma=0, multichannel=True).ravel()
 		segments = np.repeat(segments, 4).tolist()

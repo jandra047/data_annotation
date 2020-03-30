@@ -18,36 +18,35 @@ function sender(context) {
 	
 	var csrftoken = getCookie('csrftoken')
 	var xhttp = new XMLHttpRequest();
-	// set params
 	var method = 'POST';
 	var asynchronous = true;
 
 	xhttp.open(method, context.url, asynchronous);
-
 	xhttp.setRequestHeader('X-CSRFToken', csrftoken);
-	//xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-	//xhttp.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
 
 	xhttp.onreadystatechange = function() {
 
 		if (this.readyState === XMLHttpRequest.DONE) {
-			var response = this.responseText;
-			var endpoint = this.getResponseHeader('Endpoint');
 			// try parse json response
-			
 			try {
 				response = JSON.parse(this.responseText);
 			} catch (e) {
 				// not json
 			}
-			switch (endpoint) {
-				case 'calculateSegments':
+			
+			switch (context.url) {
+				case '/segment_calc':
 					segments = response;
-					var loadingSpinner = document.getElementById('loadingSpinner');
 					loadingSpinner.style.display = 'none';
 					break;
-				case 'receiver':
-					window.location = response;
+				case '/receiver':
+					console.log(response)
+					image.src = response['img_path'];
+					image.name = response['img_name'];
+					image.width = response['img_width'];
+					image.height = response['img_height'];
+					segments = response['segments'];
+					window.reloadVariables();
 					break;
 			}
 		}
@@ -59,10 +58,23 @@ function sender(context) {
 		// format data into json and send request
 	switch (context.url) {
 		case '/receiver':
-			xhttp.send(JSON.stringify({'img_name': context.imageName, 'checkpoint': context.isCheckpoint, 'img_width': context.imageWidth, 'img_height': context.imageHeight, 'mask' :context.data}));
+			xhttp.send(
+				JSON.stringify({
+					'img_name' : context.imageName,
+					'checkpoint' : context.isCheckpoint,
+					'img_width' : context.imageWidth,
+					'img_height' : context.imageHeight,
+					'mask' : context.imgdata
+				}));
 			break;
 		case '/segment_calc':
-			xhttp.send(JSON.stringify({'segmentNumber': context.segmentNumber, 'img_name':context.imageName, 'algorithm':context.algorithm, 'compactness':context.compactness}));
+			xhttp.send(
+				JSON.stringify({
+					'segmentNumber' : context.segmentNumber,
+					'img_name' :context.imageName,
+					'algorithm' : context.algorithm,
+					'compactness' : context.compactness
+				}));
 			break;
 		}
 	

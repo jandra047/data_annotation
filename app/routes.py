@@ -3,7 +3,6 @@ from app import app, db
 from app.forms import LoginForm, RegistrationForm
 from flask import render_template, request, redirect, url_for, send_from_directory, flash, make_response
 from app.functions import save_mask, load_image, add_to_done, create_user_files, create_mask_from_png, create_segments
-from PIL import Image
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User
 from werkzeug.urls import url_parse
@@ -14,20 +13,8 @@ import json
 @login_required
 def index():
 	title = 'DataAnnotation'
-	try:
-		img_path, img_name, mask_path = load_image(current_user)
-		img = Image.open(img_path)
-		segments = create_segments(img)
-		if mask_path:
-			mask = create_mask_from_png(mask_path)
-		else:
-			mask=None
-	except:
-		img = None
-		img_name = None
-		mask = None
-		segments = None
-	return render_template('index.html', title = title, img=img, filename=img_name, segments=segments, mask = mask)
+	img, img_name, mask = load_image(current_user)
+	return render_template('index.html', title = title, img=img, filename=img_name, mask = mask)
 
 
 @app.route('/receiver', methods=['GET', 'POST'])
@@ -37,15 +24,26 @@ def receive():
 	checkpoint = request.json['checkpoint']
 	img_height = request.json['img_height']
 	img_width = request.json['img_width']
-	
 	if not checkpoint:
+		# Save groundtruth as .png and add image name to done images
 		save_mask(mask, current_user, img_name, img_height, img_width, checkpoint=False)
 		add_to_done(img_name, current_user)
-		res_obj = make_response(url_for('index'))
-		res_obj.headers['Endpoint'] = 'receiver'
+		# Return next image to client as a response
+		img, img_name, mask = load_image(current_user)
+		img_path = app.config['IMAGES_DIR'] + img_name
+		segments = create_segments(img_path)
+		response = {
+			'img_path' : url_for('images', filename = img_name),
+			'img_name' : img_name,
+			'img_width' : img.size[0],
+			'img_height' : img.size[1],
+			'segments' : segments,
+			'mask' : mask
+		}
+		res_obj = make_response(jsonify(response))
 		return res_obj
 	else:
-		save_mask(mask, current_user, img_name, img_height, img_width, checkpoint=True)
+		save_mask(mask, current_user, img_name, img_height, img_width, checkpoint = True)
 		return '#'
 
 @app.route('/images/<path:filename>')
@@ -57,11 +55,10 @@ def calculateSegments():
 	segment_num = request.json['segmentNumber']
 	img_name = request.json['img_name']
 	algorithm = request.json['algorithm']
-	img = Image.open(app.config['IMAGES_DIR'] + img_name)
+	img_path = app.config['IMAGES_DIR'] + img_name
 	compactness = request.json['compactness']
-	segments = create_segments(img, algorithm, segment_num, compactness)
+	segments = create_segments(img_path, algorithm, segment_num, compactness)
 	res_obj = make_response(jsonify(segments))
-	res_obj.headers['Endpoint'] = 'calculateSegments'
 	return res_obj
 
 
@@ -84,7 +81,6 @@ def login():
 		if not next_page or url_parse(next_page).netloc != '':
 			next_page = url_for('index')
 		return redirect(next_page)
-		#return redirect(url_for('index'))
 	return render_template('login.html', title='DataAnnotation - Log in', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
