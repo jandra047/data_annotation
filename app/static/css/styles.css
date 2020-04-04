@@ -2,7 +2,9 @@
 #footer{
 	margin-top: 100px;
 }
-
+.tooltip.in {
+  opacity: 1;
+}
 #ex1Slider .slider-selection {
 	background: #ABCDEF;
 }
@@ -43,6 +45,7 @@
 	position:relative; top:0px; left:0px; 
 	}
 .coveringCanvas{ 
+	width: 100%;
 	position:absolute; top:0px; left:0px;
 	z-index:1;
 

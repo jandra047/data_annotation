@@ -9,12 +9,40 @@ from werkzeug.urls import url_parse
 import os
 import json
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
-	title = 'DataAnnotation'
-	img, img_name, mask = load_image(current_user)
-	return render_template('index.html', title = title, img=img, filename=img_name, mask = mask)
+	if request.method == 'POST':
+		mask = request.json['mask']
+		img_name = request.json['img_name']
+		checkpoint = request.json['checkpoint']
+		img_height = request.json['img_height']
+		img_width = request.json['img_width']
+		if not checkpoint:
+			# Save groundtruth as .png and add image name to done images
+			save_mask(mask, current_user, img_name, img_height, img_width, checkpoint=False)
+			add_to_done(img_name, current_user)
+			# Return next image to client as a response
+			img, img_name, mask = load_image(current_user)
+			img_path = app.config['IMAGES_DIR'] + img_name
+			segments = create_segments(img_path)
+			response = {
+				'img_path' : url_for('images', filename = img_name),
+				'img_name' : img_name,
+				'img_width' : img.size[0],
+				'img_height' : img.size[1],
+				'segments' : segments,
+				'mask' : mask
+			}
+			res_obj = make_response(jsonify(response))
+			return res_obj
+		else:
+			save_mask(mask, current_user, img_name, img_height, img_width, checkpoint = True)
+			return '#'
+	else:
+		title = 'DataAnnotation'
+		img, img_name, mask = load_image(current_user)
+		return render_template('index.html', title = title, img=img, filename=img_name, mask = mask)
 
 
 @app.route('/receiver', methods=['GET', 'POST'])

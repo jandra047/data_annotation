@@ -14,14 +14,14 @@ function getCookie(name) {
 	return cookieValue;
 	}
 	
-function sender(context) {
+function sender(data) {
 	
 	var csrftoken = getCookie('csrftoken')
 	var xhttp = new XMLHttpRequest();
 	var method = 'POST';
 	var asynchronous = true;
 
-	xhttp.open(method, context.url, asynchronous);
+	xhttp.open(method, data.url, asynchronous);
 	xhttp.setRequestHeader('X-CSRFToken', csrftoken);
 
 	xhttp.onreadystatechange = function() {
@@ -34,20 +34,19 @@ function sender(context) {
 				// not json
 			}
 			
-			switch (context.url) {
+			switch (data.url) {
 				case '/segment_calc':
 					segments = response;
 					loadingSpinner.style.display = 'none';
 					break;
-				case '/receiver':
-					console.log(response)
-					image.src = response['img_path'];
-					image.name = response['img_name'];
-					image.width = response['img_width'];
-					image.height = response['img_height'];
-					segments = response['segments'];
-					window.reloadVariables();
-					break;
+				case '/':
+					if (!data.isCheckpoint) {
+						image.src = response['img_path'];
+						image.name = response['img_name'];
+						image.style.width = response['img_width'] + "px";
+						image.style.height = response['img_height'] + "px";
+						break;
+					}
 			}
 		}
 	};
@@ -56,24 +55,24 @@ function sender(context) {
 	   // set json headers
 	xhttp.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 		// format data into json and send request
-	switch (context.url) {
-		case '/receiver':
+	switch (data.url) {
+		case '/':
 			xhttp.send(
 				JSON.stringify({
-					'img_name' : context.imageName,
-					'checkpoint' : context.isCheckpoint,
-					'img_width' : context.imageWidth,
-					'img_height' : context.imageHeight,
-					'mask' : context.imgdata
+					'img_name' : data.imageName,
+					'checkpoint' : data.isCheckpoint,
+					'img_width' : data.imageWidth,
+					'img_height' : data.imageHeight,
+					'mask' : data.imgdata
 				}));
 			break;
 		case '/segment_calc':
 			xhttp.send(
 				JSON.stringify({
-					'segmentNumber' : context.segmentNumber,
-					'img_name' :context.imageName,
-					'algorithm' : context.algorithm,
-					'compactness' : context.compactness
+					'segmentNumber' : data.segmentNumber,
+					'img_name' :data.imageName,
+					'algorithm' : data.algorithm,
+					'compactness' : data.compactness
 				}));
 			break;
 		}

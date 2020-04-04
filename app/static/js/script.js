@@ -1,38 +1,39 @@
 $( document ).ready(function () {
 	
-	window.reloadVariables = function() {
+	//  Variables to be redefined every time a new image is loaded
+	reloadVariables = function() {
 		currentMaskSaved = true;
 		isCheckpoint = false;
 		isClear = false;
-		originalImageWidth = image.width;
-		originalImageHeight = image.height;
-		mainCanvas.width = image.width;
-		mainCanvas.height = image.height;
-		offscreenCanvas.width = image.width;
-		offscreenCanvas.height = image.height;
-		hoverCanvas.width = image.width;
-		hoverCanvas.height = image.height;
+		zoomSlider.setValue(1);
+		// originalImageWidth = image.width;
+		// originalImageHeight = image.height;
+		mainCanvas.width = image.naturalWidth;
+		mainCanvas.height = image.naturalHeight;
+		offscreenCanvas.width = image.naturalWidth;
+		offscreenCanvas.height = image.naturalHeight;
+		hoverCanvas.width = image.naturalWidth;
+		hoverCanvas.height = image.naturalHeight;
+		mainCanvas.ctx = mainCanvas.getContext('2d');
+		mainCanvas.ctx.globalAlpha = 0.4;
+		offscreenCanvas.ctx = offscreenCanvas.getContext('2d');
+		offscreenCanvas.ctx.globalAlpha = 1;
+		offscreenCanvas.ctx.fillStyle = 'rgb(255,255,255)';
+		hoverCanvas.ctx = hoverCanvas.getContext('2d');
+		hoverCanvas.ctx.globalAlpha = 0.5;
+		hoverCanvas.ctx.fillStyle = 'rgb(255,255,255)';
+		outsideWrapper.style.width = image.naturalWidth + "px";
+		outsideWrapper.style.height = image.naturalHeight + "px";
 	}
-
 
 	tool = 'brush'	
 	segments = []
+
+	/* Main drawing elements */
 	image = document.getElementById('coveredImage');
-	/* Setting up main canvas from which data is eventually sent to server */	
 	mainCanvas = document.getElementById('inputCanvas');
-	mainCanvas.ctx = mainCanvas.getContext('2d');
-	mainCanvas.ctx.globalAlpha = 0.4;
-	
-	/* Offscreen canvas is used to draw to main canvas with transparency */
 	offscreenCanvas = document.createElement("canvas");
-	offscreenCanvas.ctx = offscreenCanvas.getContext('2d');
-	offscreenCanvas.ctx.globalAlpha = 1;
-	offscreenCanvas.ctx.fillStyle = 'rgb(255,255,255)';
-	/* Canvas for visualising brush or superpixel area on mouse hover */
 	hoverCanvas = document.getElementById('hoverCanvas');
-	hoverCanvas.ctx = hoverCanvas.getContext('2d');
-	hoverCanvas.ctx.globalAlpha = 0.5;
-	hoverCanvas.ctx.fillStyle = 'rgb(255,255,255)';
 	
 	
 	/* Buttons and sliders  */
@@ -55,26 +56,12 @@ $( document ).ready(function () {
 			return 'Compactness: ' + value;
 		}
 	});
-	var zoomSlider = new Slider('#zoomSlider', {
+	zoomSlider = new Slider('#zoomSlider', {
 		formatter: function(value) {
-			return 'Zoom: ' + value + ' %';
+			return 'Zoom: ' + 100*value + ' %';
 		}
 	});
-
 	
-	/* If a mask is provided from checkpoint folder */
-	if (mask) {
-		drawMask(mask)
-	}
-	// function basicSetup() {
-		
-	// 	console.log(image)
-	// }
-	
-	
-
-	
-
 	function drawMask(mask) {
 		maskImageData = mainCanvas.ctx.createImageData(width=mainCanvas.width, height=mainCanvas.height);
 		maskImageData.data.set(mask);
@@ -209,7 +196,7 @@ $( document ).ready(function () {
 		}
 		
 		data = {
-			'url' : '/receiver',
+			'url' : '/',
 			'imgdata' : imgdata,
 			'imageName' : image.name,
 			'imageWidth' : mainCanvas.width,
@@ -234,6 +221,7 @@ $( document ).ready(function () {
 		}
 		sender(data);
 	}
+	
 	
 	window.onmouseup = function(e) {
 		mainCanvas.isDrawing = false;
@@ -290,8 +278,7 @@ $( document ).ready(function () {
 	});
 
 	clearBtn.addEventListener('click', function (){
-		// clearCanvas(offscreenCanvas.ctx, mainCanvas.ctx, hoverCanvas.ctx);
-		// basicSetup();
+		clearCanvas(offscreenCanvas.ctx, mainCanvas.ctx, hoverCanvas.ctx);
 	});
 
 	sendBtn.addEventListener('click', function (){
@@ -311,9 +298,16 @@ $( document ).ready(function () {
 
 	$('#zoomSlider').on('change', function () {
 		zoom = this.value;
-		image.style.width = String(originalImageWidth*zoom ) + "px";
-		outsideWrapper.style.width = String(originalImageWidth*zoom) + "px";
-		outsideWrapper.style.height = String(originalImageHeight*zoom) + "px";	
+		image.style.width = String(image.naturalWidth*zoom ) + "px";
+		image.style.height = String(image.naturalHeight*zoom) + "px";
+		outsideWrapper.style.width = String(image.naturalWidth*zoom) + "px";
+		outsideWrapper.style.height = String(image.naturalHeight*zoom) + "px";	
+		// hoverCanvas.width = String(originalImageWidth*zoom) + "px";
+		// hoverCanvas.height = String(originalImageHeight*zoom) + "px";
+		// mainCanvas.height = String(originalImageHeight*zoom) + "px";
+		// mainCanvas.width = String(originalImageWidth*zoom) + "px";
+		// offscreenCanvas.width = String(originalImageWidth*zoom) + "px";
+		// offscreenCanvas.height = String(originalImageHeight*zoom) + "px";
 	});
 
 	$('#sidebarCollapse').on('click', function () {
@@ -347,10 +341,19 @@ $( document ).ready(function () {
 		}
 	};
 
+	image.onloadend = function () {
+		reloadVariables();
+		getSegments();
+	}
 
-	// basicSetup();
-	getSegments();
 	reloadVariables();
+	getSegments();
+
+	/* If a mask is provided from checkpoint folder */
+	if (mask) {
+		drawMask(mask)
+	}
+
 })
 
 

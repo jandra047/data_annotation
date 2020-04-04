@@ -42,6 +42,7 @@ def load_image(user):
 		img = None
 		img_name = None
 		mask = None
+		print(img, img_name, mask)
 		return img, img_name, mask
 
 def add_to_done(img_name, user):
