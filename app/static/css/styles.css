@@ -5,10 +5,15 @@
 .tooltip.in {
   opacity: 1;
 }
+
 #ex1Slider .slider-selection {
 	background: #ABCDEF;
 }
 
+/*.dropdown-menu {
+	position: relative;
+	z-index: 10;
+}*/
 
 #pills-tabContent {
 	padding-top: 10px;
@@ -43,6 +48,7 @@
 	position:relative;}
 .coveredImage{ 
 	position:relative; top:0px; left:0px; 
+	z-index: -1;
 	}
 .coveringCanvas{ 
 	width: 100%;
@@ -64,9 +70,10 @@
 }
 #navbar {
 	position: fixed;
-	overflow: hidden;
+	/*overflow: hidden;*/
 	top: 0;
 	width: 100%;
+	/*z-index: -1;*/
 }
 #content {
 	margin-top: 70px;
@@ -78,10 +85,10 @@
 }
 
 
-body {
+/*body {
 	overflow-x: hidden;
 }
-
+*/
 .login-form, .register-form{
 	width: 350px;
 	margin: 50px auto;
@@ -122,6 +129,7 @@ body {
 	align-self: center;
 	margin-left: -250px;
 	border-radius: 5%;
+	z-index: 0;
 }
 
 #sidebar * {

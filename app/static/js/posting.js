@@ -69,6 +69,7 @@ function sender(data) {
 		case '/segment_calc':
 			xhttp.send(
 				JSON.stringify({
+					'project_name': data.project_name,
 					'segmentNumber' : data.segmentNumber,
 					'img_name' :data.imageName,
 					'algorithm' : data.algorithm,

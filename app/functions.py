@@ -21,20 +21,20 @@ def save_mask(data, user, img_name, img_height,  img_width, checkpoint):
 		plt.imsave(user.home_path + f'/checkpoint/{img_name}'[:-4], mask, format='png')
 	return 0
 
-def load_image(user):
+def load_image(user, project):
 	mask = None
-	all_images = os.listdir(app.config['IMAGES_DIR'])
+	all_images = os.listdir(project.home_path)
 	try:
 		if not os.listdir(user.home_path + '/checkpoint'):
 			with open(user.home_path + '/done_images.txt', 'r') as file:
 				done_images = file.read().splitlines()
 				for image_name in all_images:
 					if image_name not in done_images:
-						img = Image.open(app.config['IMAGES_DIR'] + image_name)
+						img = Image.open(os.path.join(project.home_path, image_name))
 						return img, image_name, mask
 		else:
 			img_name = os.listdir(user.home_path + '/checkpoint')[0] + '.jpg'
-			img = Image.open(app.config['IMAGES_DIR'] +  img_name)
+			img = Image.open(project.home_path +  img_name)
 			mask_path = user.home_path + '/checkpoint/' + img_name[:-4]
 			mask = create_mask_from_png(mask_path)
 			return img, img_name, mask
@@ -43,7 +43,7 @@ def load_image(user):
 		img_name = None
 		mask = None
 		print(img, img_name, mask)
-		return img, img_name, mask
+	return img, img_name, mask
 
 def add_to_done(img_name, user):
 	with open(user.home_path + '/done_images.txt', 'a') as file:

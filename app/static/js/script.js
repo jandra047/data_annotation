@@ -24,6 +24,7 @@ $( document ).ready(function () {
 		hoverCanvas.ctx.fillStyle = 'rgb(255,255,255)';
 		outsideWrapper.style.width = image.naturalWidth + "px";
 		outsideWrapper.style.height = image.naturalHeight + "px";
+		project_name = window.location.pathname.slice(5);
 	}
 
 	tool = 'brush'	
@@ -40,7 +41,7 @@ $( document ).ready(function () {
 	var calculateSegmentsBtn = document.getElementById('calculateSegments');
 	var clearBtn = document.getElementById('clearButton');
 	var sendBtn = document.getElementById('sendButton');
-	var checkpointBtn = document.getElementById('checkpointButton')
+	var checkpointBtn = document.getElementById('checkpointButton');
 	var brushRadius = new Slider('#brushRadius', {
 		formatter: function(value) {
 			return 'Brush radius: ' + value;
@@ -214,6 +215,7 @@ $( document ).ready(function () {
 
 		data = {
 			'url' : '/segment_calc',
+			'project_name': project_name,
 			'segmentNumber' : numSegments,
 			'imageName' : imageName,
 			'algorithm' : algorithm,

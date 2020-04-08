@@ -11,7 +11,11 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'login'
-
+login.login_message_category = 'info'
 
 
 from app import routes, models
+
+@app.shell_context_processor
+def make_shell_context():
+    return {'db': db, 'User': models.User, 'Project': models.Project, 'Image': models.Image, 'DoneImage': models.DoneImage, 'User2Project': models.User2Project}

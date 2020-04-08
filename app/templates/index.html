@@ -68,7 +68,7 @@
 	{% if img %}
 		<div class="outsideWrapper" id="outsideWrapper">
 			<div class="insideWrapper" id="insideWrapper">
-				<img src="{{ url_for('images', filename=filename) }}" id="coveredImage" class="coveredImage" name={{ filename }}>
+				<img src="{{ url_for('images', id=img.id) }}" id="coveredImage" class="coveredImage" name={{ img.name }}>
 				<canvas id='inputCanvas' class="coveringCanvas"></canvas>
 				<canvas id="hoverCanvas"></canvas>
 			</div>
