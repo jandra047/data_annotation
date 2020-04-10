@@ -8,17 +8,13 @@ from skimage.color import rgb2gray
 from skimage.filters import sobel
 from PIL import Image
 
-def save_mask(data, user, img_name, img_height,  img_width, checkpoint):
+def save_mask(data, user2project, img_name, img_height,  img_width, checkpoint):
 	mask = np.array(data)
 	mask = 255*(mask>0).astype(np.uint8)
 	mask = np.reshape(mask, (img_height, img_width))
 	mask = np.expand_dims(mask, axis=-1)
 	mask = np.repeat(mask, 3, axis=-1)
-	if not checkpoint:
-		plt.imsave(user.home_path + '/groundtruth' + f'/{img_name}'[:-4] + '.png', mask)
-		remove_checkpoint(user)
-	else:
-		plt.imsave(user.home_path + f'/checkpoint/{img_name}'[:-4], mask, format='png')
+	plt.imsave(user2project.home_path + f'/{img_name}'[:-4] + '.png', mask)
 	return 0
 
 def load_image(user, project):

@@ -197,7 +197,8 @@ $( document ).ready(function () {
 		}
 		
 		data = {
-			'url' : '/',
+			'url' : '/app/',
+			'project_name': project_name,
 			'imgdata' : imgdata,
 			'imageName' : image.name,
 			'imageWidth' : mainCanvas.width,

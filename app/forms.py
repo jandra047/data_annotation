@@ -1,8 +1,27 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, MultipleFileField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-from app.models import User, Project
+from app.models import User, Project, User2Project
 from flask_login import current_user
+import imghdr
+
+class ImageFileRequired(object):
+	"""
+	Validates that files uploaded from flask_wtf MultipleFileField are, in 
+	fact images.  Better than checking the file extension, examines the header of
+	the image using Python's built in imghdr module.
+	"""
+
+	def __init__(self, message=None):
+		if not message:
+			message = 'Only image files accepted'
+		self.message = message
+
+	def __call__(self, form, field):
+		if not all([imghdr.what('unused', img.read()) for img in field.data]):
+			raise ValidationError(self.message)
+
+
 
 class LoginForm(FlaskForm):
 	username = StringField('Username', validators=[DataRequired()], render_kw={'placeholder': 'Username'})
@@ -27,9 +46,9 @@ class RegistrationForm(FlaskForm):
 
 class NewProjectForm(FlaskForm):
 	name = StringField('Project name', validators=[DataRequired()], render_kw={'placeholder': 'Project name'})
-	images = MultipleFileField('Photos', validators=[DataRequired()])
+	images = MultipleFileField('Photos', validators=[DataRequired(), ImageFileRequired()])
 
-	# def validate_name(self, name):
-	# 	#project = Project.query.filter_by(name=name.data).first()
-	# 	if project is not None:
-	# 		raise ValidationError('Project with the same name already exists.')
+	def validate_name(self, name):
+		project = current_user.projects.join(User2Project).filter(User2Project.role == 'admin', Project.name == name.data).one_or_none()
+		if project is not None:
+			raise ValidationError('Project with the same name already exists.')

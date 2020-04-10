@@ -10,6 +10,7 @@ from werkzeug.urls import url_parse
 import os
 import json
 import shutil
+from PIL import Image as IMAGE
 
 
 
@@ -20,7 +21,7 @@ def manage():
 @app.route('/home', methods=['GET', 'POST'])
 @login_required
 def home():
-	projects = current_user.projects
+	projects = current_user.projects.all()
 	form = NewProjectForm()
 	if form.validate_on_submit():
 		project_name = secure_filename(form.name.data)
@@ -31,7 +32,7 @@ def home():
 			img_path = os.path.join(project.home_path, 'images', filename)
 			image.save(img_path)
 			img = Image(name=filename, path=img_path, project=project)
-			db.session.add(img)
+			project.images.append(img)
 		db.session.commit()
 		flash(f'Project {project.name} created successfully!', 'success')
 		return redirect(url_for('home'))
@@ -49,15 +50,21 @@ def index(project_name):
 		img_width = request.json['img_width']
 		if not checkpoint:
 			# Save groundtruth as .png and add image name to done images
-			save_mask(mask, current_user, img_name, img_height, img_width, checkpoint=False)
-			add_to_done(img_name, current_user)
+			project = current_user.projects.filter(Project.name == project_name).one()
+			user2project = User2Project.query.filter(User2Project.user == current_user, User2Project.project == project).one()
+			save_mask(mask, user2project, img_name, img_height, img_width, checkpoint=False)
+			image = project.images.filter(Image.name == img_name).one()
+			DoneImage(project=project, user=current_user, image=image, user2project=user2project)
 			# Return next image to client as a response
-			img, img_name, mask = load_image(current_user)
-			img_path = app.config['IMAGES_DIR'] + img_name
-			segments = create_segments(img_path)
+			db.session.commit()
+			image = Image.query.filter(Image.project == project, Image.done == None).first()
+			img = IMAGE.open(image.path)
+			# img, img_name, mask = load_image(current_user)
+			# img_path = app.config['IMAGES_DIR'] + img_name
+			segments = create_segments(image.path)
 			response = {
-				'img_path' : url_for('images', filename = img_name),
-				'img_name' : img_name,
+				'src' : url_for('images', id=image.id),
+				'img_name' : image.name,
 				'img_width' : img.size[0],
 				'img_height' : img.size[1],
 				'segments' : segments,
@@ -71,14 +78,14 @@ def index(project_name):
 	else:
 		title = 'DataAnnotation'
 		project = Project.query.join(User2Project).filter(Project.name == project_name, User2Project.role == 'admin', User2Project.user_id == current_user.id).one()
-		img = project.images.first()
+		img = Image.query.filter(Image.project == project, Image.done == None).first()
 		return render_template('index.html', title = title, img=img, mask=None)
 
 @app.route('/images/<int:id>')
 def images(id):
 	img = Image.query.get(id)
 	project = img.project
-	return send_from_directory(project.home_path, img.name)
+	return send_from_directory(os.path.join(project.home_path, 'images'), img.name)
 
 @app.route('/segment_calc', methods=['GET', 'POST'])
 def calculateSegments():
@@ -86,27 +93,25 @@ def calculateSegments():
 	project_name = request.json['project_name']
 	img_name = request.json['img_name']
 	algorithm = request.json['algorithm']
-	img_path = os.path.join(Project.query.filter_by(name=project_name).first().home_path, img_name)
+	img_path = os.path.join(Project.query.filter_by(name=project_name).first().home_path, 'images', img_name)
 	compactness = request.json['compactness']
 	segments = create_segments(img_path, algorithm, segment_num, compactness)
 	res_obj = make_response(jsonify(segments))
 	return res_obj
 
-@app.route('/users/<path:username>')
-def user_dir(username):
-	return f'/users/{username}'
-
-
-@app.route('/delete/<name>', methods = ['GET', 'POST'])
+@app.route('/delete/<name>', methods=['POST'])
 @login_required
 def delete(name):
-	project = Project.query.join(User2Project).filter(Project.name == name, User2Project.role == 'admin', User2Project.user_id == current_user.id).one()
-	shutil.rmtree(project.home_path)
-	db.session.delete(project)
-	db.session.commit()
-	flash(f"Project {project.name} deleted successfully", "info")
-	return redirect(url_for('home'))
-
+	project = current_user.projects.join(User2Project).filter(Project.name == name, User2Project.role == 'admin').one_or_none()
+	if project is not None:
+		shutil.rmtree(project.home_path)
+		db.session.delete(project)
+		db.session.commit()
+		flash(f"Project {project.name} deleted successfully", "info")
+		return redirect(url_for('home'))
+	else:
+		flash(f"No project with name {name} found", "danger")
+		return redirect(url_for('home'))
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():

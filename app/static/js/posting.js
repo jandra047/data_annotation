@@ -21,7 +21,7 @@ function sender(data) {
 	var method = 'POST';
 	var asynchronous = true;
 
-	xhttp.open(method, data.url, asynchronous);
+	xhttp.open(method, data.url + data.project_name, asynchronous);
 	xhttp.setRequestHeader('X-CSRFToken', csrftoken);
 
 	xhttp.onreadystatechange = function() {
@@ -29,7 +29,9 @@ function sender(data) {
 		if (this.readyState === XMLHttpRequest.DONE) {
 			// try parse json response
 			try {
+				console.log('done request')
 				response = JSON.parse(this.responseText);
+				conesole.log(response)
 			} catch (e) {
 				// not json
 			}
@@ -39,9 +41,9 @@ function sender(data) {
 					segments = response;
 					loadingSpinner.style.display = 'none';
 					break;
-				case '/':
+				case '/app/':
 					if (!data.isCheckpoint) {
-						image.src = response['img_path'];
+						image.src = response['src'];
 						image.name = response['img_name'];
 						image.style.width = response['img_width'] + "px";
 						image.style.height = response['img_height'] + "px";
@@ -56,7 +58,7 @@ function sender(data) {
 	xhttp.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
 		// format data into json and send request
 	switch (data.url) {
-		case '/':
+		case '/app/':
 			xhttp.send(
 				JSON.stringify({
 					'img_name' : data.imageName,
