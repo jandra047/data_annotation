@@ -11,7 +11,7 @@ import uuid
 
 done_images = db.Table('done_images', db.Model.metadata,
 	db.Column('user2project_id', db.Integer, db.ForeignKey('user2project.id', ondelete="CASCADE")),
-	db.Column('image_id', db.Integer, db.ForeignKey('images.id', ondelete="CASCADE"))
+	db.Column('image_id', db.Integer, db.ForeignKey('images.id'))
 )
 
 class User(db.Model, UserMixin):
@@ -58,7 +58,7 @@ class Image(db.Model, UserMixin):
 	id = db.Column(db.Integer, primary_key = True)
 	name = db.Column(db.String(64), index=True)
 	path = db.Column(db.String(128), unique=True)
-	project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('projects.id'))
+	project_id = db.Column(UUID(as_uuid=True), db.ForeignKey('projects.id', ondelete='CASCADE'))
 	height = db.Column(db.Integer)
 	width = db.Column(db.Integer)
 

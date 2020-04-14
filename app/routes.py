@@ -1,4 +1,5 @@
-from flask import jsonify
+import zipstream
+from flask import jsonify, Response
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, NewProjectForm
 from flask import render_template, request, redirect, url_for, send_from_directory, flash, make_response
@@ -42,13 +43,16 @@ def index(id):
 		img_height = request.json['img_height']
 		img_width = request.json['img_width']
 		if not checkpoint:
-			project = current_user.projects.filter(Project.id == id).one()
-			image = project.images.filter(Image.name == img_name).one()
-			user2project = current_user.user2project.filter(Project.id == id).one()
-			user2project.done_images.append(image)
-			save_mask(mask, user2project, img_name, img_height, img_width, checkpoint=False)
-			Mask(image=image, user2project=user2project)
-			db.session.commit()
+			try:
+				project = current_user.projects.filter(Project.id == id).one()
+				image = project.images.filter(Image.name == img_name).one()
+				user2project = current_user.user2project.filter(User2Project.project_id == id).one()
+				user2project.done_images.append(image)
+				Mask(image=image, user2project=user2project)
+				db.session.commit()
+				save_mask(mask, user2project, img_name, img_height, img_width, checkpoint=False)
+			except:
+				pass
 			try:
 				image = user2project.next_image()
 				segments = create_segments(image.path)
@@ -84,9 +88,12 @@ def add_user(project_name):
 			username = request.form['username']
 			user = User.query.filter_by(username = username).one_or_none()
 			if user:
-				User2Project(user=user, project=project, role='non_admin')
-				db.session.commit()
-				flash(f'User {username} successfully added to project {project.name}!', 'success')
+				if not project in user.projects.all():
+					User2Project(user=user, project=project, role='non_admin')
+					db.session.commit()
+					flash(f'User {username} successfully added to project {project.name}!', 'success')
+				else:
+					flash(f'User {username} is already in the project', 'info')
 			else:
 				flash(f'No user named {username}', 'danger')
 		return redirect(url_for('home'))
@@ -130,15 +137,36 @@ def calculateSegments():
 @app.route('/delete/<name>', methods=['POST'])
 @login_required
 def delete(name):
-	project = current_user.projects.filter(Project.name == name, User2Project.role == 'admin').one_or_none()
-	if project is not None:
-		db.session.delete(project)
-		db.session.commit()
-		shutil.rmtree(project.home_path)
-		flash(f"Project {project.name} deleted successfully", "info")
-		return redirect(url_for('home'))
+	if current_user.check_password(request.form['password']):
+		project = current_user.projects.filter(Project.name == name, User2Project.role == 'admin').one_or_none()
+		if project is not None:
+			db.session.delete(project)
+			db.session.commit()
+			shutil.rmtree(project.home_path)
+			flash(f"Project {project.name} deleted successfully", "info")
+		else:
+			flash(f"No project found name {name}", "danger")
 	else:
-		flash(f"No project found name {name}", "danger")
+		flash(f'Invalid password', 'danger')
+	return redirect(url_for('home'))
+
+@app.route('/download/<project_name>', methods=['GET'], endpoint='zipball')
+@login_required
+def zipball(project_name):
+	z = zipstream.ZipFile(mode='w', compression=zipstream.ZIP_DEFLATED)
+	project = current_user.projects.filter(User2Project.role == 'admin', Project.name == project_name).one_or_none()
+	
+	if project:
+		path = os.path.join(project.home_path, 'users')
+		files = []
+		for r,d,f in os.walk(path):
+			for file in f:
+				# files.append(os.path.join(r, file))
+				z.write(os.path.join(r, file), os.path.join(project_name, r.split('/')[-1], file))
+		response = Response(z, mimetype='application/zip')
+		response.headers['Content-Disposition'] = f'attachment; filename={project_name}.zip'
+		return response
+	else:
 		return redirect(url_for('home'))
 
 @app.route('/login', methods = ['GET', 'POST'])
