@@ -29,9 +29,7 @@ function sender(data) {
 		if (this.readyState === XMLHttpRequest.DONE) {
 			// try parse json response
 			try {
-				console.log('done request')
 				response = JSON.parse(this.responseText);
-				conesole.log(response)
 			} catch (e) {
 				// not json
 			}

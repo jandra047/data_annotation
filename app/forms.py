@@ -7,9 +7,7 @@ import imghdr
 
 class ImageFileRequired(object):
 	"""
-	Validates that files uploaded from flask_wtf MultipleFileField are, in 
-	fact images.  Better than checking the file extension, examines the header of
-	the image using Python's built in imghdr module.
+	Validates that files uploaded from flask_wtf MultipleFileField are images.
 	"""
 
 	def __init__(self, message=None):
@@ -20,6 +18,8 @@ class ImageFileRequired(object):
 	def __call__(self, form, field):
 		if not all([imghdr.what('unused', img.read()) for img in field.data]):
 			raise ValidationError(self.message)
+		for img in field.data:
+			img.seek(0)
 
 
 

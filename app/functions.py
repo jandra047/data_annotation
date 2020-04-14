@@ -14,7 +14,8 @@ def save_mask(data, user2project, img_name, img_height,  img_width, checkpoint):
 	mask = np.reshape(mask, (img_height, img_width))
 	mask = np.expand_dims(mask, axis=-1)
 	mask = np.repeat(mask, 3, axis=-1)
-	plt.imsave(user2project.home_path + f'/{img_name}'[:-4] + '.png', mask)
+	if not checkpoint:
+		plt.imsave(user2project.home_path + f'/{img_name}'[:-4] + '.png', mask)
 	return 0
 
 def load_image(user, project):

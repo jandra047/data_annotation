@@ -4,21 +4,14 @@ from app.forms import LoginForm, RegistrationForm, NewProjectForm
 from flask import render_template, request, redirect, url_for, send_from_directory, flash, make_response
 from app.functions import save_mask, load_image, add_to_done, create_user_files, create_mask_from_png, create_segments
 from flask_login import login_user, logout_user, current_user, login_required
-from app.models import User, Project, Image, User2Project
+from app.models import User, Project, Image, User2Project, Mask
 from werkzeug import secure_filename
 from werkzeug.urls import url_parse
 import os
 import json
 import shutil
-from PIL import Image as IMAGE
 
-
-
-@app.route('/manage')
-def manage():
-	return render_template('manage.html')
-
-@app.route('/home', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
 	projects = current_user.projects.all()
@@ -39,9 +32,9 @@ def home():
 	return render_template('home.html', title='Home', projects = projects, form=form)
 
 
-@app.route('/app/<project_name>', methods=['GET', 'POST'])
+@app.route('/app/<uuid:id>', methods=['GET', 'POST'])
 @login_required
-def index(project_name):
+def index(id):
 	if request.method == 'POST':
 		mask = request.json['mask']
 		img_name = request.json['img_name']
@@ -49,37 +42,72 @@ def index(project_name):
 		img_height = request.json['img_height']
 		img_width = request.json['img_width']
 		if not checkpoint:
-			# Save groundtruth as .png and add image name to done images
-			project = current_user.projects.filter(Project.name == project_name).one()
-			user2project = User2Project.query.filter(User2Project.user == current_user, User2Project.project == project).one()
-			save_mask(mask, user2project, img_name, img_height, img_width, checkpoint=False)
+			project = current_user.projects.filter(Project.id == id).one()
 			image = project.images.filter(Image.name == img_name).one()
-			DoneImage(project=project, user=current_user, image=image, user2project=user2project)
-			# Return next image to client as a response
+			user2project = current_user.user2project.filter(Project.id == id).one()
+			user2project.done_images.append(image)
+			save_mask(mask, user2project, img_name, img_height, img_width, checkpoint=False)
+			Mask(image=image, user2project=user2project)
 			db.session.commit()
-			image = Image.query.filter(Image.project == project, Image.done == None).first()
-			img = IMAGE.open(image.path)
-			# img, img_name, mask = load_image(current_user)
-			# img_path = app.config['IMAGES_DIR'] + img_name
-			segments = create_segments(image.path)
-			response = {
-				'src' : url_for('images', id=image.id),
-				'img_name' : image.name,
-				'img_width' : img.size[0],
-				'img_height' : img.size[1],
-				'segments' : segments,
-				'mask' : mask
-			}
-			res_obj = make_response(jsonify(response))
+			try:
+				image = user2project.next_image()
+				segments = create_segments(image.path)
+				response = {
+					'src' : url_for('images', id=image.id),
+					'img_name' : image.name,
+					'img_width' : image.width,
+					'img_height' : image.height,
+					'segments' : segments,
+					'mask' : mask
+				}
+				res_obj = make_response(jsonify(response))
+			except:
+				return redirect(url_for('home'))
 			return res_obj
 		else:
 			save_mask(mask, current_user, img_name, img_height, img_width, checkpoint = True)
 			return '#'
 	else:
 		title = 'DataAnnotation'
-		project = Project.query.join(User2Project).filter(Project.name == project_name, User2Project.role == 'admin', User2Project.user_id == current_user.id).one()
-		img = Image.query.filter(Image.project == project, Image.done == None).first()
+		project = current_user.projects.filter(Project.id == id).one()
+		user2project = project.user2project.filter(User2Project.user == current_user).one()
+		img = user2project.next_image()
 		return render_template('index.html', title = title, img=img, mask=None)
+
+
+@app.route('/add_user/<project_name>', methods=['POST'])
+@login_required
+def add_user(project_name):
+	if request.method == 'POST':
+		project = current_user.projects.filter(User2Project.role == 'admin', Project.name == project_name).one_or_none()
+		if project:
+			username = request.form['username']
+			user = User.query.filter_by(username = username).one_or_none()
+			if user:
+				User2Project(user=user, project=project, role='non_admin')
+				db.session.commit()
+				flash(f'User {username} successfully added to project {project.name}!', 'success')
+			else:
+				flash(f'No user named {username}', 'danger')
+		return redirect(url_for('home'))
+
+@app.route('/remove_user/<project_name>', methods=['POST'])
+@login_required
+def remove_user(project_name):
+	if request.method == 'POST':
+		project = current_user.projects.filter(User2Project.role == 'admin', Project.name == project_name).one_or_none()
+		if project:
+			username = request.form['username']
+			user = User.query.filter_by(username = username).one_or_none()
+			if user:
+				u2p = project.user2project.filter(User2Project.user == user).one()
+				db.session.delete(u2p)
+				db.session.commit()
+				shutil.rmtree(u2p.home_path)
+				flash(f'User {username} successfully removed from project {project.name}!', 'success')
+			else:
+				flash(f'No user named {username}', 'danger')
+	return redirect(url_for('home'))
 
 @app.route('/images/<int:id>')
 def images(id):
@@ -102,15 +130,15 @@ def calculateSegments():
 @app.route('/delete/<name>', methods=['POST'])
 @login_required
 def delete(name):
-	project = current_user.projects.join(User2Project).filter(Project.name == name, User2Project.role == 'admin').one_or_none()
+	project = current_user.projects.filter(Project.name == name, User2Project.role == 'admin').one_or_none()
 	if project is not None:
-		shutil.rmtree(project.home_path)
 		db.session.delete(project)
 		db.session.commit()
+		shutil.rmtree(project.home_path)
 		flash(f"Project {project.name} deleted successfully", "info")
 		return redirect(url_for('home'))
 	else:
-		flash(f"No project with name {name} found", "danger")
+		flash(f"No project found name {name}", "danger")
 		return redirect(url_for('home'))
 
 @app.route('/login', methods = ['GET', 'POST'])
