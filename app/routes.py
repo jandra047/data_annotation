@@ -96,6 +96,8 @@ def add_user(project_name):
 					flash(f'User {username} is already in the project', 'info')
 			else:
 				flash(f'No user named {username}', 'danger')
+		else:
+			flash(f'Permission denied', 'danger')
 		return redirect(url_for('home'))
 
 @app.route('/remove_user/<project_name>', methods=['POST'])
@@ -145,7 +147,7 @@ def delete(name):
 			shutil.rmtree(project.home_path)
 			flash(f"Project {project.name} deleted successfully", "info")
 		else:
-			flash(f"No project found name {name}", "danger")
+			flash(f"No project found named {name}", "danger")
 	else:
 		flash(f'Invalid password', 'danger')
 	return redirect(url_for('home'))
@@ -158,10 +160,8 @@ def zipball(project_name):
 	
 	if project:
 		path = os.path.join(project.home_path, 'users')
-		files = []
 		for r,d,f in os.walk(path):
 			for file in f:
-				# files.append(os.path.join(r, file))
 				z.write(os.path.join(r, file), os.path.join(project_name, r.split('/')[-1], file))
 		response = Response(z, mimetype='application/zip')
 		response.headers['Content-Disposition'] = f'attachment; filename={project_name}.zip'

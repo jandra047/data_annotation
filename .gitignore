@@ -6,6 +6,8 @@ migrations
 TODO
 projects
 */functions_old.py
+.vscode/*
+*.code-workspace
 
 
 # Byte-compiled / optimized / DLL files
