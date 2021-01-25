@@ -6,7 +6,7 @@ from flask import render_template, request, redirect, url_for, send_from_directo
 from app.functions import save_mask, load_image, add_to_done, create_user_files, create_mask_from_png, create_segments
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User, Project, Image, User2Project, Mask
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 from werkzeug.urls import url_parse
 import os
 import json
