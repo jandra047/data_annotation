@@ -41,7 +41,7 @@ class Project(db.Model, UserMixin):
 	name = db.Column(db.String(64), index=True)
 	home_path = db.Column(db.String(128), unique=True)
 	
-	images = db.relationship('Image', backref='project', lazy='dynamic'/*, cascade= 'all, delete-orphan')
+	images = db.relationship('Image', backref='project', lazy='dynamic', cascade= 'all, delete-orphan')
 	users = db.relationship('User', secondary='user2project', lazy='dynamic')
 
 	def __init__(self, **kwargs):

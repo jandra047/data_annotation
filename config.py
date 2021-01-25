@@ -16,4 +16,4 @@ class Config(object):
     USERS_HOME_DIR = APP_ROOT + '/users/'
     IMAGES_DIR = APP_ROOT + '/images/'
     PROJECTS_DIR = APP_ROOT + '/projects'
-    SQLALCHEMY_ECHO = True
+    SQLALCHEMY_ECHO = False
