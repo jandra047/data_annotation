@@ -18,19 +18,36 @@ import shutil
 def home():
     projects = current_user.projects.all()
     form = NewProjectForm()
+    
     if form.validate_on_submit():
-        project_name = secure_filename(form.name.data)
-        project = Project(name=project_name)
-        User2Project(user=current_user, project=project, role='admin')
-        for image in form.images.data:
-            filename = secure_filename(image.filename)
-            img_path = os.path.join(project.home_path, 'images', filename)
-            image.save(img_path)
-            img = Image(name=filename, path=img_path, project=project)
-            project.images.append(img)
-        db.session.commit()
-        flash(f'Project {project.name} created successfully!', 'success')
-        return redirect(url_for('home'))
+        try:
+            # Create and add project to session
+            project_name = secure_filename(form.name.data)
+            project = Project(name=project_name)
+            db.session.add(project)
+            
+            # Create and add User2Project to session
+            user2project = User2Project(user=current_user, project=project, role='admin')
+            db.session.add(user2project)
+            
+            # Handle images
+            for image in form.images.data:
+                filename = secure_filename(image.filename)
+                img_path = os.path.join(project.home_path, 'images', filename)
+                image.save(img_path)
+                img = Image(name=filename, path=img_path, project=project)
+                db.session.add(img)  # Explicitly add image to session
+            
+            # Commit all changes
+            db.session.commit()
+            flash(f'Project {project.name} created successfully!', 'success')
+            return redirect(url_for('home'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error creating project: {str(e)}', 'error')
+            return redirect(url_for('home'))
+    
     return render_template('home.html', title='Home', projects=projects, form=form)
 
 

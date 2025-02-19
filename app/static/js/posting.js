@@ -21,7 +21,7 @@ function sender(data) {
 	var method = 'POST';
 	var asynchronous = true;
 
-	xhttp.open(method, data.url + data.project_name, asynchronous);
+	xhttp.open(method, data.url, asynchronous);
 	xhttp.setRequestHeader('X-CSRFToken', csrftoken);
 
 	xhttp.onreadystatechange = function() {
